@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Home, Trophy, Heart, User, PlusCircle, Star } from "lucide-react";
 import AffiliateSlot from "./AffiliateSlot";
+import AffiliateCarousel from "./AffiliateCarousel";
 import { AFFILIATE_ADS } from "@/lib/affiliate";
 
 type SidebarProps = {
@@ -61,19 +62,8 @@ export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
                         <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                         おすすめアイテム
                     </h3>
-                    <div className="flex flex-col gap-3 px-1">
-                        {AFFILIATE_ADS.sidebar.map((ad, index) => (
-                            <AffiliateSlot
-                                key={index}
-                                type="sidebar-minimal"
-                                title={ad.title}
-                                description={ad.description}
-                                badge={ad.badge}
-                                link={ad.link}
-                                price={ad.price}
-                                imageUrl={ad.imageUrl}
-                            />
-                        ))}
+                    <div className="px-1">
+                        <AffiliateCarousel ads={AFFILIATE_ADS.sidebar} interval={5000} />
                     </div>
                 </div>
             </div>
