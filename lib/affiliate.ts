@@ -32,6 +32,14 @@ export const AFFILIATE_ADS = {
             link: "https://amzn.to/40LtJS4",
             imageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=200&h=200&fit=crop",
         },
+        {
+            title: "Flydigi Vader 4 PRO",
+            description: "力切替トリガー搭載、究極の操作性を誇る多機能コントローラー。",
+            badge: "プロ仕様",
+            price: "¥12,980",
+            link: "https://amzn.to/3N4v2s0",
+            imageUrl: "https://images.unsplash.com/photo-1592840331052-16e15c2c6f95?w=200&h=200&fit=crop",
+        },
     ],
     gameDetail: {
         banner: {
