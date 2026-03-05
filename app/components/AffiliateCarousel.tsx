@@ -56,7 +56,7 @@ export default function AffiliateCarousel({ ads, interval = 5000 }: AffiliateCar
                 {ads.map((ad, index) => (
                     <div key={index} className="w-full flex-shrink-0">
                         <AffiliateSlot
-                            type="sidebar-minimal"
+                            type="sidebar-tall"
                             {...ad}
                         />
                     </div>

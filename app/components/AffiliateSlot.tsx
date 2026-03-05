@@ -3,7 +3,7 @@
 import { ExternalLink, ShoppingCart, Info } from "lucide-react";
 
 interface AffiliateSlotProps {
-    type: "sidebar" | "banner" | "sidebar-minimal";
+    type: "sidebar" | "banner" | "sidebar-minimal" | "sidebar-tall";
     title?: string;
     description?: string;
     imageUrl?: string;
@@ -21,6 +21,48 @@ export default function AffiliateSlot({
     price,
     badge
 }: AffiliateSlotProps) {
+
+    // Sidebar Tall Style (Vertical layout, very prominent)
+    if (type === "sidebar-tall") {
+        return (
+            <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-indigo-200 transition-all hover:shadow-md"
+            >
+                {imageUrl && (
+                    <div className="w-full aspect-square bg-gray-50 overflow-hidden relative">
+                        <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        {badge && (
+                            <div className="absolute top-2 left-2">
+                                <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-bold rounded-lg shadow-lg uppercase tracking-wider">
+                                    {badge}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                )}
+                <div className="p-4 flex flex-col gap-2">
+                    <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+                        {title}
+                    </h4>
+                    {description && (
+                        <p className="text-[11px] text-gray-500 line-clamp-2 leading-snug">
+                            {description}
+                        </p>
+                    )}
+                    <div className="mt-1 flex items-center justify-between">
+                        {price && <span className="text-indigo-600 font-extrabold text-sm">{price}</span>}
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                            <span>Check</span>
+                            <ExternalLink className="w-3 h-3" />
+                        </div>
+                    </div>
+                </div>
+            </a>
+        );
+    }
 
     // Sidebar Style (Similar to YouTube related content or promotions)
     if (type === "sidebar" || type === "sidebar-minimal") {
