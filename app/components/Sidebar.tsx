@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Trophy, Heart, User, PlusCircle, Star } from "lucide-react";
+import { Home, Trophy, Heart, User, PlusCircle, Star, TrendingUp } from "lucide-react";
 import AffiliateSlot from "./AffiliateSlot";
 import AffiliateCarousel from "./AffiliateCarousel";
 import { AFFILIATE_ADS } from "@/lib/affiliate";
@@ -64,6 +64,19 @@ export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
                     </h3>
                     <div className="px-1">
                         <AffiliateCarousel ads={AFFILIATE_ADS.sidebar} interval={5000} />
+                    </div>
+                </div>
+
+                <hr className="border-gray-100" />
+
+                {/* Trending Section */}
+                <div>
+                    <h3 className="px-3 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                        <TrendingUp className="w-3 h-3 text-rose-500" />
+                        売れ筋トレンド
+                    </h3>
+                    <div className="px-1">
+                        <AffiliateCarousel ads={AFFILIATE_ADS.trending} interval={8000} />
                     </div>
                 </div>
             </div>
