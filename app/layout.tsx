@@ -5,40 +5,39 @@ import { Suspense } from "react";
 import ClientLayout from "./components/ClientLayout";
 
 const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
+  title: "GameTube - AI Game Platform",
+  description: "Play, create, and share AI-generated web games",
+  openGraph: {
     title: "GameTube - AI Game Platform",
     description: "Play, create, and share AI-generated web games",
-    openGraph: {
-        title: "GameTube - AI Game Platform",
-        description: "Play, create, and share AI-generated web games",
-        type: "website",
-    },
+    type: "website",
+  },
 };
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="ja">
-          <body
-              className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 min-h-screen font-sans`}
-              >
-            <Suspense fallback={null}>
-              <ClientLayout>{children}</ClientLayout>ClientLayout>
-            </Suspense>Suspense>
-          </body>body>
-        </html>html>
-        );
+  return (
+    <html lang="ja">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 min-h-screen font-sans`}
+      >
+        <Suspense fallback={null}>
+          <ClientLayout>{children}</ClientLayout>
+        </Suspense>
+      </body>
+    </html>
+  );
 }
-</html>
