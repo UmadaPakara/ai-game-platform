@@ -6,7 +6,7 @@ export const AFFILIATE_ADS = {
             badge: "おすすめ",
             price: "¥19,800",
             link: "https://amzn.to/4raGyQE",
-            imageUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=200&h=200&fit=crop",
+            imageUrl: "https://m.media-amazon.com/images/I/51tqDjEoETL.jpg",
         },
         {
             title: "G PRO ゲーミングキーボード",
@@ -14,7 +14,7 @@ export const AFFILIATE_ADS = {
             badge: "人気",
             price: "¥13,900",
             link: "https://amzn.to/4rS8KJa",
-            imageUrl: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=200&h=200&fit=crop",
+            imageUrl: "https://m.media-amazon.com/images/I/61eSkWURkIL.jpg",
         },
         {
             title: "Radeon RX 9070 XT",
@@ -22,15 +22,15 @@ export const AFFILIATE_ADS = {
             badge: "NEW",
             price: "¥89,800",
             link: "https://amzn.to/4lcEiXU",
-            imageUrl: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=200&h=200&fit=crop",
+            imageUrl: "https://m.media-amazon.com/images/I/61WIPFSwJIL.jpg",
         },
         {
-            title: "Logicool Z150 スピーカー",
-            description: "クリアなステレオサウンド、コンパクトでデスクに最適。",
+            title: "BIGBIG WON Gale Hall",
+            description: "ホールエフェクトセンサー搭載。高精度なワイヤレスコントローラー。",
             badge: "人気",
-            price: "¥3,500",
+            price: "¥7,980",
             link: "https://amzn.to/40LtJS4",
-            imageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=200&h=200&fit=crop",
+            imageUrl: "https://m.media-amazon.com/images/I/61bvjc0XiuL.jpg",
         },
         {
             title: "Flydigi Vader 4 PRO",
@@ -38,7 +38,7 @@ export const AFFILIATE_ADS = {
             badge: "プロ仕様",
             price: "¥12,980",
             link: "https://amzn.to/3N4v2s0",
-            imageUrl: "https://images.unsplash.com/photo-1592840331052-16e15c2c6f95?w=200&h=200&fit=crop",
+            imageUrl: "https://m.media-amazon.com/images/I/61d-Tu3y-pL.jpg",
         },
     ],
     gameDetail: {
@@ -48,15 +48,15 @@ export const AFFILIATE_ADS = {
             badge: "最強スマホ",
             price: "¥118,000〜",
             link: "https://amzn.to/409mm6T",
-            imageUrl: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop",
+            imageUrl: "https://m.media-amazon.com/images/I/61kKk5MyY6L.jpg",
         },
         sidebar: {
-            title: "最新のiPad (第11世代以降対応)",
+            title: "iPad (第10世代)",
             description: "創作もプレイも、この一台。究極のモバイルツール。",
             badge: "PICK UP",
             link: "https://amzn.to/4ucimQF",
             price: "¥58,800〜",
-            imageUrl: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=200&h=200&fit=crop",
+            imageUrl: "https://m.media-amazon.com/images/I/61opXmF-vsL.jpg",
         }
     }
 };
