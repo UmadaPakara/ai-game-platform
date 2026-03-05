@@ -26,22 +26,42 @@ export default function GamePage() {
   }
 
   const loadGame = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("games")
       .select("*, profiles(username)")
       .eq("id", id)
       .single()
 
-    if (data) setGame(data)
+    if (error) {
+      console.warn("Join with profiles failed, falling back:", error.message)
+      const { data: simpleData } = await supabase
+        .from("games")
+        .select("*")
+        .eq("id", id)
+        .single()
+      if (simpleData) setGame(simpleData)
+    } else {
+      setGame(data)
+    }
   }, [id])
 
   const fetchRelatedGames = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("games")
       .select("*, profiles(username)")
       .neq("id", id)
       .limit(6)
-    setRelatedGames(data || [])
+
+    if (error) {
+      const { data: simpleData } = await supabase
+        .from("games")
+        .select("*")
+        .neq("id", id)
+        .limit(6)
+      setRelatedGames(simpleData || [])
+    } else {
+      setRelatedGames(data || [])
+    }
   }, [id])
 
   const incrementViews = async () => {
