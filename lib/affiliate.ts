@@ -1,38 +1,46 @@
 export const AFFILIATE_ADS = {
     sidebar: [
         {
-            title: "AIゲーム制作マスター講座",
-            description: "プログラミング不要でゲームを作る！",
+            title: "Logicool G PRO 2 LIGHTSPEED",
+            description: "プロが選ぶ、超軽量ワイヤレスマウスの頂点。",
             badge: "おすすめ",
-            price: "¥0〜",
-            link: "#", // ここを後でアフィリエイトリンクに書き換える
-            imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200&h=200&fit=crop",
+            price: "¥19,800",
+            link: "https://amzn.to/4raGyQE",
+            imageUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=200&h=200&fit=crop",
         },
         {
-            title: "高性能ゲーミングPC",
-            description: "快適な開発環境をその手に",
-            badge: "限定セール",
-            price: "¥128,000〜",
-            link: "#",
-            imageUrl: "https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=200&h=200&fit=crop",
+            title: "G PRO ゲーミングキーボード",
+            description: "競技向け、コンパクトなテンキーレスデザイン。",
+            badge: "人気",
+            price: "¥13,900",
+            link: "https://amzn.to/4rS8KJa",
+            imageUrl: "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=200&h=200&fit=crop",
+        },
+        {
+            title: "Radeon RX 9070 XT",
+            description: "圧倒的なフレームレートで最高画質を体験。",
+            badge: "NEW",
+            price: "¥89,800",
+            link: "https://amzn.to/4lcEiXU",
+            imageUrl: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=200&h=200&fit=crop",
         },
     ],
     gameDetail: {
         banner: {
-            title: "究極のゲーム開発ツールセット",
-            description: "あなたの想像力を形にする最新のAIツールパック。今なら初月無料！",
-            badge: "人気",
-            price: "初月無料",
-            link: "#",
-            imageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=400&fit=crop",
+            title: "REDMAGIC 11 Pro【日本公式】",
+            description: "冷却ファン内蔵、最強のゲーミング体験をその手に。",
+            badge: "最強スマホ",
+            price: "¥118,000〜",
+            link: "https://amzn.to/409mm6T",
+            imageUrl: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop",
         },
         sidebar: {
-            title: "クリエイター向けモニター",
-            description: "正確な色彩で最高の作品を。",
+            title: "最新のiPad (第11世代以降対応)",
+            description: "創作もプレイも、この一台。究極のモバイルツール。",
             badge: "PICK UP",
-            link: "#",
-            price: "¥24,800",
-            imageUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=200&h=200&fit=crop",
+            link: "https://amzn.to/4ucimQF",
+            price: "¥58,800〜",
+            imageUrl: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=200&h=200&fit=crop",
         }
     }
 };
