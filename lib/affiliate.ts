@@ -24,6 +24,14 @@ export const AFFILIATE_ADS = {
             link: "https://amzn.to/4lcEiXU",
             imageUrl: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=200&h=200&fit=crop",
         },
+        {
+            title: "Logicool Z150 スピーカー",
+            description: "クリアなステレオサウンド、コンパクトでデスクに最適。",
+            badge: "人気",
+            price: "¥3,500",
+            link: "https://amzn.to/40LtJS4",
+            imageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=200&h=200&fit=crop",
+        },
     ],
     gameDetail: {
         banner: {
