@@ -34,7 +34,7 @@ export default function AffiliateSlot({
             >
                 {imageUrl && (
                     <div className="w-full aspect-square bg-gray-50 overflow-hidden relative">
-                        <Image src={imageUrl} alt={title || "Product Image"} fill sizes="(max-width: 768px) 100vw, 300px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <Image src={imageUrl} alt={title || "Product Image"} fill unoptimized sizes="(max-width: 768px) 100vw, 300px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
                         {badge && (
                             <div className="absolute top-2 left-2">
                                 <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-bold rounded-lg shadow-lg uppercase tracking-wider">
@@ -77,7 +77,7 @@ export default function AffiliateSlot({
                 <div className="flex gap-3">
                     {imageUrl && (
                         <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 relative">
-                            <Image src={imageUrl} alt={title || "Product Image"} fill sizes="64px" className="object-cover group-hover:scale-105 transition-transform" />
+                            <Image src={imageUrl} alt={title || "Product Image"} fill unoptimized sizes="64px" className="object-cover group-hover:scale-105 transition-transform" />
                         </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -113,7 +113,7 @@ export default function AffiliateSlot({
             <div className="flex flex-col sm:flex-row items-center gap-6">
                 {imageUrl && (
                     <div className="w-full sm:w-32 h-32 rounded-xl overflow-hidden bg-white shadow-inner flex-shrink-0 relative">
-                        <Image src={imageUrl} alt={title || "Product Image"} fill sizes="(max-width: 640px) 100vw, 128px" className="object-contain p-2" />
+                        <Image src={imageUrl} alt={title || "Product Image"} fill unoptimized sizes="(max-width: 640px) 100vw, 128px" className="object-contain p-2" />
                     </div>
                 )}
                 <div className="flex-1 text-center sm:text-left">
