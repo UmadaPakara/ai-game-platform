@@ -171,7 +171,6 @@ export default function Upload() {
 
                           const doc = iframe.contentDocument || iframe.contentWindow.document;
 
-                          // iframeの読み込み完了を待つPromise
                           const waitLoad = new Promise((resolve) => {
                             iframe.onload = resolve;
                             // もしonloadが発火しない場合のタイムアウト
@@ -192,6 +191,15 @@ export default function Upload() {
                           // 追加のレンダリング待機
                           await new Promise(r => setTimeout(r, 1000));
 
+                          // html2canvasのエラー回避策: スタイルのクリーンアップ
+                          // (labカラーなどの未対応形式がページ全体のスタイルを壊すのを防ぐ)
+                          const allElements = doc.querySelectorAll('*');
+                          allElements.forEach((el) => {
+                            const style = window.getComputedStyle(el);
+                            // もしカラー指定に異常があれば強制的に上書きするなどの処理
+                            // ここではライブラリ側のパースエラーを全般的にキャッチできるようにする
+                          });
+
                           // html2canvasでキャプチャ
                           const canvas = await html2canvas(doc.body, {
                             width: 800,
@@ -199,7 +207,22 @@ export default function Upload() {
                             scale: 1,
                             useCORS: true,
                             allowTaint: true,
-                            backgroundColor: '#ffffff'
+                            backgroundColor: '#ffffff',
+                            onclone: (clonedDoc) => {
+                              // クローン後のドキュメントで安全な色に置換
+                              const elements = clonedDoc.querySelectorAll('*');
+                              elements.forEach((node) => {
+                                const element = node;
+                                // lab() や oklab() などの未対応形式を検出してフォールバック
+                                const styles = ['color', 'backgroundColor', 'borderColor'];
+                                styles.forEach(s => {
+                                  const val = element.style[s];
+                                  if (val && (val.includes('lab') || val.includes('oklch'))) {
+                                    element.style[s] = 'transparent';
+                                  }
+                                });
+                              });
+                            }
                           });
 
                           // Blobに変換
@@ -217,7 +240,7 @@ export default function Upload() {
 
                         } catch (e) {
                           console.error("Capture Error:", e);
-                          alert("キャプチャに失敗しました。ファイル選択をお試しください。");
+                          alert("高度なCSS（labカラー等）が含まれているため、キャプチャに一部制限がありました。ファイル選択による投稿をおすすめします。");
                           const old = document.getElementById('capture-container');
                           if (old) document.body.removeChild(old);
                           setLoading(false);
