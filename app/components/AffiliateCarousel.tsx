@@ -57,7 +57,7 @@ export default function AffiliateCarousel({ ads, interval = 5000 }: AffiliateCar
                     <div key={index} className="w-full flex-shrink-0">
                         <AffiliateSlot
                             type="sidebar-tall"
-                            priority={index === 0}
+                            priority={true}
                             {...ad}
                         />
                     </div>
