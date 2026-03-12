@@ -3,6 +3,14 @@
 export const AFFILIATE_ADS = {
     sidebar: [
         {
+            title: "iPad (第10世代)",
+            description: "創作もプレイも、この一台。究極のモバイルツール。",
+            badge: "PICK UP",
+            price: "¥58,800",
+            link: "https://amzn.to/4ucimQF",
+            imageUrl: "/images/affiliate/ipad.jpg",
+        },
+        {
             title: "Logicool G PRO 2 LIGHTSPEED",
             description: "プロが選ぶ、超軽量ワイヤレスマウスの頂点。",
             badge: "おすすめ",
@@ -19,28 +27,20 @@ export const AFFILIATE_ADS = {
             imageUrl: "/images/affiliate/gpro_kb.jpg",
         },
         {
+            title: "REDMAGIC 11 Pro【日本公式】",
+            description: "冷却ファン内蔵、最強のゲーミング体験をその手に。",
+            badge: "最強スマホ",
+            price: "¥129,800",
+            link: "https://amzn.to/409mm6T",
+            imageUrl: "/images/affiliate/redmagic.jpg",
+        },
+        {
             title: "Radeon RX 9070 XT",
             description: "圧倒的なフレームレートで最高画質を体験。",
             badge: "NEW",
             price: "¥100,800",
             link: "https://amzn.to/4lcEiXU",
             imageUrl: "/images/affiliate/rx9070xt.jpg",
-        },
-        {
-            title: "DualSense ミッドナイト ブラック",
-            description: "PS5純正、ハプティックフィードバックで直感的なゲームプレイ。",
-            badge: "人気",
-            price: "¥11,480",
-            link: "https://www.amazon.co.jp/dp/B094R8KF9V?tag=umadapakara11-22",
-            imageUrl: "/images/affiliate/dualsense.jpg",
-        },
-        {
-            title: "Flydigi Vader 4 PRO",
-            description: "究極の操作性を誇る多機能コントローラー。",
-            badge: "プロ仕様",
-            price: "¥10,404",
-            link: "https://www.amazon.co.jp/dp/B0D9VBBFDR?tag=umadapakara11-22",
-            imageUrl: "/images/affiliate/flydigi.jpg",
         }
     ],
     gameDetail: {
