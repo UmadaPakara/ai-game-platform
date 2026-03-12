@@ -83,7 +83,7 @@ const TRENDING_POOL = [
     },
     {
         title: "Logicool G PRO X SUPERLIGHT 2",
-        description: "8Kポーリングレート対応に進化したワイヤレスマウスের完成形。",
+        description: "8Kポーリングレート対応に進化したワイヤレスマウスの完成形。",
         badge: "人気",
         price: "¥20,727",
         link: "https://amzn.to/3OX8Tg7",
@@ -152,7 +152,7 @@ export function getWeeklyTrendingAds(count = 5) {
     const now = new Date();
     const WEEK_MS = 604800000;
     const weekNumber = Math.floor(now.getTime() / WEEK_MS);
-    const randomSeed = (seed) => {
+    const randomSeed = (seed: number) => {
         const x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     };
@@ -163,4 +163,4 @@ export function getWeeklyTrendingAds(count = 5) {
     });
     return shuffled.slice(0, count);
 }
-// Final Force Rebuild Trigger: 2026-03-13 03:00
+// Clean build signal: 2026-03-13 03:05
