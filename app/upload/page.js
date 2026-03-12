@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
+import html2canvas from "html2canvas"
 
 export default function Upload() {
   const router = useRouter()
@@ -148,11 +149,13 @@ export default function Upload() {
                           alert("HTMLコードを先に入力してください");
                           return;
                         }
+                        setLoading(true);
                         // 自動スクショ生成ロジック
                         try {
                           const container = document.createElement('div');
                           container.style.position = 'fixed';
-                          container.style.top = '-10000px';
+                          container.style.top = '0';
+                          container.style.left = '-2000px'; // 画面外
                           container.style.width = '800px';
                           container.style.height = '450px';
                           document.body.appendChild(container);
@@ -160,34 +163,56 @@ export default function Upload() {
                           const iframe = document.createElement('iframe');
                           iframe.style.width = '100%';
                           iframe.style.height = '100%';
+                          iframe.style.border = 'none';
                           container.appendChild(iframe);
 
                           const doc = iframe.contentDocument || iframe.contentWindow.document;
                           doc.open();
-                          doc.write(htmlCode);
+                          doc.write(`
+                            <style>body { margin: 0; overflow: hidden; }</style>
+                            ${htmlCode}
+                          `);
                           doc.close();
 
-                          // 実行後のレンダリング待機
-                          await new Promise(resolve => setTimeout(resolve, 1500));
+                          // 実行後のレンダリング待機 (アセット読み込みなど)
+                          await new Promise(resolve => setTimeout(resolve, 2000));
 
-                          // html2canvas的なことをしなくても、iframe内のCanvasを探せればベスト
-                          // セキュリティ上直接触れない場合が多いので、一旦簡易的な案内 or html2canvas導入を検討
-                          // ここでは「画面をキャプチャ中...」的な体験を演出
-                          alert("開発中：HTMLコードから動的にCanvasを抽出する機能を強化中です。現在はファイル選択をご利用ください。");
+                          // html2canvasでiframeの内容をキャプチャ
+                          const canvas = await html2canvas(doc.body, {
+                            width: 800,
+                            height: 450,
+                            scale: 1,
+                            useCORS: true,
+                            logging: false
+                          });
 
-                          document.body.removeChild(container);
+                          // Blobに変換してFileとして扱う
+                          canvas.toBlob((blob) => {
+                            if (blob) {
+                              const capturedFile = new File([blob], "thumbnail.png", { type: "image/png" });
+                              setFile(capturedFile);
+                              alert("ゲーム画面をキャプチャしました！");
+                            }
+                            document.body.removeChild(container);
+                            setLoading(false);
+                          }, 'image/png');
+
                         } catch (e) {
                           console.error(e);
+                          alert("キャプチャに失敗しました。ファイル選択をお試しください。");
+                          setLoading(false);
                         }
                       }}
-                      className="flex-1 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors"
+                      className="flex-1 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
+                      disabled={loading}
                     >
-                      📸 画面から生成
+                      <span>📸 画面から生成</span>
                     </button>
                     <button
                       type="button"
                       className="flex-1 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
-                      onClick={() => alert("AI画像生成ボタン（開発中）")}
+                      onClick={() => alert("AI画像生成は今後のアップデートで提供予定です。現在は「画面から生成」をご利用ください！")}
+                      disabled={loading}
                     >
                       🤖 AIで生成
                     </button>
