@@ -1,3 +1,5 @@
+// lib/affiliate.ts
+
 export const AFFILIATE_ADS = {
     sidebar: [
         {
@@ -6,7 +8,7 @@ export const AFFILIATE_ADS = {
             badge: "おすすめ",
             price: "¥11,970",
             link: "https://amzn.to/4raGyQE",
-            imageUrl: "https://m.media-amazon.com/images/I/51tqDjEoETL.jpg",
+            imageUrl: "https://m.media-amazon.com/images/I/61m7eE2M0qL._AC_SX679_.jpg",
         },
         {
             title: "G PRO ゲーミングキーボード",
@@ -14,7 +16,7 @@ export const AFFILIATE_ADS = {
             badge: "人気",
             price: "¥10,480",
             link: "https://amzn.to/4rS8KJa",
-            imageUrl: "https://m.media-amazon.com/images/I/61eSkWURkIL.jpg",
+            imageUrl: "https://m.media-amazon.com/images/I/61eSkWURkIL._AC_SX679_.jpg",
         },
         {
             title: "Radeon RX 9070 XT",
@@ -22,105 +24,23 @@ export const AFFILIATE_ADS = {
             badge: "NEW",
             price: "¥100,800",
             link: "https://amzn.to/4lcEiXU",
-            imageUrl: "https://m.media-amazon.com/images/I/61WIPFSwJIL.jpg",
+            imageUrl: "https://m.media-amazon.com/images/I/81kHqD0wHzL._AC_SX679_.jpg",
         },
         {
-            title: "BIGBIG WON Gale Hall",
-            description: "ホールエフェクトセンサー搭載。高精度なワイヤレスコントローラー。",
+            title: "DualSense ミッドナイト ブラック",
+            description: "PS5純正、ハプティックフィードバックで直感的なゲームプレイ。",
             badge: "人気",
-            price: "¥5,999",
-            link: "https://amzn.to/40LtJS4",
-            imageUrl: "https://m.media-amazon.com/images/I/61bvjc0XiuL.jpg",
+            price: "¥11,480",
+            link: "https://www.amazon.co.jp/dp/B094R8KF9V?tag=umadapakara11-22",
+            imageUrl: "https://m.media-amazon.com/images/I/61opD-S-YpL._AC_SX679_.jpg",
         },
         {
             title: "Flydigi Vader 4 PRO",
-            description: "力切替トリガー搭載、究極の操作性を誇る多機能コントローラー。",
+            description: "究極の操作性を誇る多機能コントローラー。",
             badge: "プロ仕様",
             price: "¥10,404",
-            link: "https://amzn.to/3N4v2s0",
-            imageUrl: "https://m.media-amazon.com/images/I/61d-Tu3y-pL.jpg",
-        }
-    ],
-    trending: [
-        {
-            title: "Razer Viper V3 Pro",
-            description: "54gの超軽量設計、次世代の35Kセンサー搭載。プロゲーマー愛用率No.1マウス。",
-            badge: "2025トレンド",
-            price: "¥26,480",
-            link: "https://www.amazon.co.jp/dp/B0D1B6NRT1",
-            imageUrl: "https://m.media-amazon.com/images/I/51uIuGv-7RL.jpg",
-        },
-        {
-            title: "SteelSeries Apex Pro TKL (2023)",
-            description: "世界最速レベルのレスポンスを実現する可変アクチュエーションスイッチ。",
-            badge: "最強キーボード",
-            price: "¥24,800",
-            link: "https://www.amazon.co.jp/dp/B0BFM2M19I",
-            imageUrl: "https://m.media-amazon.com/images/I/71R7-Lw-D3L.jpg",
-        },
-        {
-            title: "Logicool G PRO X SUPERLIGHT 2",
-            description: "8Kポーリングレート対応に進化した、ワイヤレスマウスの完成形。",
-            badge: "定番人気",
-            price: "¥20,727",
-            link: "https://www.amazon.co.jp/dp/B0CPHYT9X9",
-            imageUrl: "https://m.media-amazon.com/images/I/61tPTe9rNUL.jpg",
-        },
-        {
-            title: "MSI MAG 342CQR E2",
-            description: "34インチのUWQHD湾曲モニター。180Hzで圧倒的な没入感のゲーム体験を。",
-            badge: "限定モデル",
-            price: "¥46,800",
-            link: "https://www.amazon.co.jp/dp/B0D9S9M8L2",
-            imageUrl: "https://m.media-amazon.com/images/I/71Z88qC-qRL.jpg",
-        },
-        {
-            title: "Razer Huntsman V3 Pro TKL",
-            description: "ラピッドトリガー搭載のアナログ光スイッチ。競技シーンに最適なスピード。",
-            badge: "プロ仕様",
-            price: "¥36,980",
-            link: "https://www.amazon.co.jp/dp/B0CFQ7W4JF",
-            imageUrl: "https://m.media-amazon.com/images/I/71Xm3o6XnML.jpg",
-        },
-        {
-            title: "DualSense 1 Midnight Black",
-            description: "PS5純正、ハプティックフィードバックで直感的なゲームプレイを可能に。",
-            badge: "純正品質",
-            price: "¥11,480",
-            link: "https://www.amazon.co.jp/dp/B094R8KF9V",
-            imageUrl: "https://m.media-amazon.com/images/I/61opD-S-YpL.jpg",
-        },
-        {
-            title: "HyperX Cloud III",
-            description: "快適な着け心地と高精細な音質。耐久性抜群のベストセラーヘッドセット。",
-            badge: "快適設計",
-            price: "¥12,000",
-            link: "https://www.amazon.co.jp/dp/B0C3BVW694",
-            imageUrl: "https://m.media-amazon.com/images/I/61k7W9Y-nGL.jpg",
-        },
-        {
-            title: "Elgato Stream Deck MK.2",
-            description: "15個のカスタムキーで操作を効率化。ライブ配信や作業の必須アイテム。",
-            badge: "配信ツール",
-            price: "¥20,680",
-            link: "https://www.amazon.co.jp/dp/B09738CV2G",
-            imageUrl: "https://m.media-amazon.com/images/I/61z-Y5W-pSL.jpg",
-        },
-        {
-            title: "Logicool G915 TKL (G913)",
-            description: "薄型メカニカルスイッチの最高峰。高級感のあるアルミニウム外装。",
-            badge: "ハイエンド",
-            price: "¥23,000",
-            link: "https://www.amazon.co.jp/dp/B08B9P8Y2G",
-            imageUrl: "https://m.media-amazon.com/images/I/71id-S-R-ZL.jpg",
-        },
-        {
-            title: "Razer Wolverine V2 Pro",
-            description: "競技向けワイヤレスコントローラー。超高速連射とカスタマイズ性が魅力。",
-            badge: "ガチ勢向け",
-            price: "¥24,800",
-            link: "https://www.amazon.co.jp/dp/B0BRLS2NZM",
-            imageUrl: "https://m.media-amazon.com/images/I/718y6o-YpLL.jpg",
+            link: "https://www.amazon.co.jp/dp/B0D9VBBFDR?tag=umadapakara11-22",
+            imageUrl: "https://m.media-amazon.com/images/I/61d-Tu3y-pL._AC_SX679_.jpg",
         }
     ],
     gameDetail: {
@@ -130,15 +50,128 @@ export const AFFILIATE_ADS = {
             badge: "最強スマホ",
             price: "¥129,800",
             link: "https://amzn.to/409mm6T",
-            imageUrl: "https://m.media-amazon.com/images/I/61kKk5MyY6L.jpg",
+            imageUrl: "https://m.media-amazon.com/images/I/51A48Mst2ZL._AC_SX679_.jpg",
         },
         sidebar: {
             title: "iPad (第10世代)",
-            description: "創作もプレイも、この一台。究極의モバイルツール。",
+            description: "創作もプレイも、この一台。究極のモバイルツール。",
             badge: "PICK UP",
             link: "https://amzn.to/4ucimQF",
             price: "¥58,800",
-            imageUrl: "https://m.media-amazon.com/images/I/61opXmF-vsL.jpg",
+            imageUrl: "https://m.media-amazon.com/images/I/61opXmF-vsL._AC_SX679_.jpg",
         }
     }
 };
+
+// 週次ローテーション用の商品プール (20個程度用意しておく)
+const TRENDING_POOL = [
+    {
+        title: "Razer Viper V3 Pro",
+        description: "54gの超軽量設計、次世代の35Kセンサー搭載。プロゲーマー愛用率No.1マウス。",
+        badge: "2025トレンド",
+        price: "¥26,480",
+        link: "https://amzn.to/4unynTW",
+        imageUrl: "https://m.media-amazon.com/images/I/51uIuGv-7RL._AC_SX679_.jpg",
+    },
+    {
+        title: "SteelSeries Apex Pro TKL",
+        description: "世界最速レベルのレスポンスを実現する可変アクチュエーションスイッチ。",
+        badge: "最強キーボード",
+        price: "¥24,800",
+        link: "https://amzn.to/4b5P6DJ",
+        imageUrl: "https://m.media-amazon.com/images/I/71R7-Lw-D3L._AC_SX679_.jpg",
+    },
+    {
+        title: "Logicool G PRO X SUPERLIGHT 2",
+        description: "8Kポーリングレート対応に進化したワイヤレスマウスの完成形。",
+        badge: "人気",
+        price: "¥20,727",
+        link: "https://amzn.to/3OX8Tg7",
+        imageUrl: "https://m.media-amazon.com/images/I/61tPTe9rNUL._AC_SX679_.jpg",
+    },
+    {
+        title: "Razer Huntsman V3 Pro TKL",
+        description: "ラピッドトリガー搭載のアナログ光スイッチ。競技シーンに最適なスピード。",
+        badge: "プロ仕様",
+        price: "¥36,980",
+        link: "https://amzn.to/4sh7TC7",
+        imageUrl: "https://m.media-amazon.com/images/I/71Xm3o6XnML._AC_SX679_.jpg",
+    },
+    {
+        title: "HyperX Cloud III",
+        description: "快適な着け心地と高精細な音質。耐久性抜群のベストセラーヘッドセット。",
+        badge: "快適設計",
+        price: "¥12,000",
+        link: "https://amzn.to/4lvGdHi",
+        imageUrl: "https://m.media-amazon.com/images/I/61k7W9Y-nGL._AC_SX679_.jpg",
+    },
+    {
+        title: "Elgato Stream Deck MK.2",
+        description: "15個のカスタムキーで操作を効率化。ライブ配信や作業の必須アイテム。",
+        badge: "配信ツール",
+        price: "¥20,680",
+        link: "https://amzn.to/3OWWzwm",
+        imageUrl: "https://m.media-amazon.com/images/I/61z-Y5W-pSL._AC_SX679_.jpg",
+    },
+    {
+        title: "Logicool G915 TKL (G913)",
+        description: "薄型メカニカルスイッチの最高峰。高級感のあるアルミニウム外装。",
+        badge: "ハイエンド",
+        price: "¥23,000",
+        link: "https://amzn.to/4sGUC5G",
+        imageUrl: "https://m.media-amazon.com/images/I/71id-S-R-ZL._AC_SX679_.jpg",
+    },
+    {
+        title: "Razer Wolverine V2 Pro",
+        description: "競技向けワイヤレスコントローラー。超高速連射とカスタマイズ性が魅力。",
+        badge: "ガチ勢向け",
+        price: "¥24,800",
+        link: "https://amzn.to/4s7nPqz",
+        imageUrl: "https://m.media-amazon.com/images/I/718y6o-YpLL._AC_SX679_.jpg",
+    },
+    {
+        title: "ASUS ROG Swift 360Hz",
+        description: "360Hzの超高リフレッシュレートでeスポーツの頂点を目指す。",
+        badge: "究極",
+        price: "¥89,800",
+        link: "https://amzn.to/4s8LcQB",
+        imageUrl: "https://m.media-amazon.com/images/I/71d1gUj6AFL._AC_SX679_.jpg",
+    },
+    {
+        title: "Sony INZONE H9",
+        description: "ノイズキャンセリング搭載、立体音響ゲーミングヘッドセット。",
+        badge: "没入感",
+        price: "¥32,000",
+        link: "https://amzn.to/4upYucN",
+        imageUrl: "https://m.media-amazon.com/images/I/61mNn9fC7SL._AC_SX679_.jpg",
+    }
+];
+
+// その週のトレンドを取得する関数
+// 1970年からの経過週をシードとして、1週間同じアイテム群を返す
+export function getWeeklyTrendingAds(count = 5) {
+    // 日本標準時の現在のタイムスタンプ
+    const now = new Date();
+    // 1週間のミリ秒 = 7 * 24 * 60 * 60 * 1000
+    const WEEK_MS = 604800000;
+
+    // 現在の週番号 (UNIXエポックからの経過週)
+    const weekNumber = Math.floor(now.getTime() / WEEK_MS);
+
+    // 週番号をシードにした簡単な擬似乱数ジェネレータ
+    const randomSeed = (seed: number) => {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
+
+    // 配列のコピーを作成してシャッフル
+    const shuffled = [...TRENDING_POOL].sort((a, b) => {
+        // 各アイテムの一意性を保ちつつ週番号を絡める
+        const seedA = weekNumber + a.title.length;
+        const seedB = weekNumber + b.title.length;
+        return randomSeed(seedA) - randomSeed(seedB);
+    });
+
+    return shuffled.slice(0, count);
+}
+

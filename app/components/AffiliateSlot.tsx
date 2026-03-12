@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, ShoppingCart, Info } from "lucide-react";
+import Image from "next/image";
 
 interface AffiliateSlotProps {
     type: "sidebar" | "banner" | "sidebar-minimal" | "sidebar-tall";
@@ -29,11 +30,11 @@ export default function AffiliateSlot({
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group block bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-indigo-200 transition-all hover:shadow-md"
+                className="group block bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-indigo-200 transition-all hover:shadow-md relative z-10"
             >
                 {imageUrl && (
                     <div className="w-full aspect-square bg-gray-50 overflow-hidden relative">
-                        <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <Image src={imageUrl} alt={title || "Product Image"} fill sizes="(max-width: 768px) 100vw, 300px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
                         {badge && (
                             <div className="absolute top-2 left-2">
                                 <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-bold rounded-lg shadow-lg uppercase tracking-wider">
@@ -71,12 +72,12 @@ export default function AffiliateSlot({
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group block bg-white border border-gray-100 rounded-xl p-3 hover:border-indigo-200 transition-all hover:shadow-sm"
+                className="group block bg-white border border-gray-100 rounded-xl p-3 hover:border-indigo-200 transition-all hover:shadow-sm relative z-10"
             >
                 <div className="flex gap-3">
                     {imageUrl && (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                            <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 relative">
+                            <Image src={imageUrl} alt={title || "Product Image"} fill sizes="64px" className="object-cover group-hover:scale-105 transition-transform" />
                         </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -111,8 +112,8 @@ export default function AffiliateSlot({
         <div className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-2xl p-4 sm:p-6 my-8 shadow-sm">
             <div className="flex flex-col sm:flex-row items-center gap-6">
                 {imageUrl && (
-                    <div className="w-full sm:w-32 h-32 rounded-xl overflow-hidden bg-white shadow-inner flex-shrink-0">
-                        <img src={imageUrl} alt={title} className="w-full h-full object-contain p-2" />
+                    <div className="w-full sm:w-32 h-32 rounded-xl overflow-hidden bg-white shadow-inner flex-shrink-0 relative">
+                        <Image src={imageUrl} alt={title || "Product Image"} fill sizes="(max-width: 640px) 100vw, 128px" className="object-contain p-2" />
                     </div>
                 )}
                 <div className="flex-1 text-center sm:text-left">
