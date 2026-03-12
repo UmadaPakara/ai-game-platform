@@ -8,7 +8,7 @@ export const AFFILIATE_ADS = {
             badge: "おすすめ",
             price: "¥11,970",
             link: "https://amzn.to/4raGyQE",
-            imageUrl: "https://m.media-amazon.com/images/I/61m7eE2M0qL._AC_SX679_.jpg",
+            imageUrl: "/images/affiliate/gpro2.jpg",
         },
         {
             title: "G PRO ゲーミングキーボード",
@@ -16,7 +16,7 @@ export const AFFILIATE_ADS = {
             badge: "人気",
             price: "¥10,480",
             link: "https://amzn.to/4rS8KJa",
-            imageUrl: "https://m.media-amazon.com/images/I/61eSkWURkIL._AC_SX679_.jpg",
+            imageUrl: "/images/affiliate/gpro_kb.jpg",
         },
         {
             title: "Radeon RX 9070 XT",
@@ -24,7 +24,7 @@ export const AFFILIATE_ADS = {
             badge: "NEW",
             price: "¥100,800",
             link: "https://amzn.to/4lcEiXU",
-            imageUrl: "https://m.media-amazon.com/images/I/81kHqD0wHzL._AC_SX679_.jpg",
+            imageUrl: "/images/affiliate/rx9070xt.jpg",
         },
         {
             title: "DualSense ミッドナイト ブラック",
@@ -32,7 +32,7 @@ export const AFFILIATE_ADS = {
             badge: "人気",
             price: "¥11,480",
             link: "https://www.amazon.co.jp/dp/B094R8KF9V?tag=umadapakara11-22",
-            imageUrl: "https://m.media-amazon.com/images/I/61opD-S-YpL._AC_SX679_.jpg",
+            imageUrl: "/images/affiliate/dualsense.jpg",
         },
         {
             title: "Flydigi Vader 4 PRO",
@@ -40,7 +40,7 @@ export const AFFILIATE_ADS = {
             badge: "プロ仕様",
             price: "¥10,404",
             link: "https://www.amazon.co.jp/dp/B0D9VBBFDR?tag=umadapakara11-22",
-            imageUrl: "https://m.media-amazon.com/images/I/61d-Tu3y-pL._AC_SX679_.jpg",
+            imageUrl: "/images/affiliate/flydigi.jpg",
         }
     ],
     gameDetail: {
@@ -50,7 +50,7 @@ export const AFFILIATE_ADS = {
             badge: "最強スマホ",
             price: "¥129,800",
             link: "https://amzn.to/409mm6T",
-            imageUrl: "https://m.media-amazon.com/images/I/51A48Mst2ZL._AC_SX679_.jpg",
+            imageUrl: "/images/affiliate/redmagic.jpg",
         },
         sidebar: {
             title: "iPad (第10世代)",
@@ -58,7 +58,7 @@ export const AFFILIATE_ADS = {
             badge: "PICK UP",
             link: "https://amzn.to/4ucimQF",
             price: "¥58,800",
-            imageUrl: "https://m.media-amazon.com/images/I/61opXmF-vsL._AC_SX679_.jpg",
+            imageUrl: "/images/affiliate/ipad.jpg",
         }
     }
 };
@@ -71,7 +71,7 @@ const TRENDING_POOL = [
         badge: "2025トレンド",
         price: "¥26,480",
         link: "https://amzn.to/4unynTW",
-        imageUrl: "https://m.media-amazon.com/images/I/51uIuGv-7RL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/viper_v3.jpg",
     },
     {
         title: "SteelSeries Apex Pro TKL",
@@ -79,7 +79,7 @@ const TRENDING_POOL = [
         badge: "最強キーボード",
         price: "¥24,800",
         link: "https://amzn.to/4b5P6DJ",
-        imageUrl: "https://m.media-amazon.com/images/I/71R7-Lw-D3L._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/apex_pro.jpg",
     },
     {
         title: "Logicool G PRO X SUPERLIGHT 2",
@@ -87,7 +87,7 @@ const TRENDING_POOL = [
         badge: "人気",
         price: "¥20,727",
         link: "https://amzn.to/3OX8Tg7",
-        imageUrl: "https://m.media-amazon.com/images/I/61tPTe9rNUL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/superlight.jpg",
     },
     {
         title: "Razer Huntsman V3 Pro TKL",
@@ -95,7 +95,7 @@ const TRENDING_POOL = [
         badge: "プロ仕様",
         price: "¥36,980",
         link: "https://amzn.to/4sh7TC7",
-        imageUrl: "https://m.media-amazon.com/images/I/71Xm3o6XnML._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/huntsman.jpg",
     },
     {
         title: "HyperX Cloud III",
@@ -103,7 +103,7 @@ const TRENDING_POOL = [
         badge: "快適設計",
         price: "¥12,000",
         link: "https://amzn.to/4lvGdHi",
-        imageUrl: "https://m.media-amazon.com/images/I/61k7W9Y-nGL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/cloud3.jpg",
     },
     {
         title: "Elgato Stream Deck MK.2",
@@ -111,7 +111,7 @@ const TRENDING_POOL = [
         badge: "配信ツール",
         price: "¥20,680",
         link: "https://amzn.to/3OWWzwm",
-        imageUrl: "https://m.media-amazon.com/images/I/61z-Y5W-pSL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/stream_deck.jpg",
     },
     {
         title: "Logicool G915 TKL (G913)",
@@ -119,7 +119,7 @@ const TRENDING_POOL = [
         badge: "ハイエンド",
         price: "¥23,000",
         link: "https://amzn.to/4sGUC5G",
-        imageUrl: "https://m.media-amazon.com/images/I/71id-S-R-ZL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/g915.jpg",
     },
     {
         title: "Razer Wolverine V2 Pro",
@@ -127,7 +127,7 @@ const TRENDING_POOL = [
         badge: "ガチ勢向け",
         price: "¥24,800",
         link: "https://amzn.to/4s7nPqz",
-        imageUrl: "https://m.media-amazon.com/images/I/718y6o-YpLL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/wolverine.jpg",
     },
     {
         title: "ASUS ROG Swift 360Hz",
@@ -135,7 +135,7 @@ const TRENDING_POOL = [
         badge: "究極",
         price: "¥89,800",
         link: "https://amzn.to/4s8LcQB",
-        imageUrl: "https://m.media-amazon.com/images/I/71d1gUj6AFL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/rog_swift.jpg",
     },
     {
         title: "Sony INZONE H9",
@@ -143,7 +143,7 @@ const TRENDING_POOL = [
         badge: "没入感",
         price: "¥32,000",
         link: "https://amzn.to/4upYucN",
-        imageUrl: "https://m.media-amazon.com/images/I/61mNn9fC7SL._AC_SX679_.jpg",
+        imageUrl: "/images/affiliate/inzone.jpg",
     }
 ];
 
@@ -159,7 +159,7 @@ export function getWeeklyTrendingAds(count = 5) {
     const weekNumber = Math.floor(now.getTime() / WEEK_MS);
 
     // 週番号をシードにした簡単な擬似乱数ジェネレータ
-    const randomSeed = (seed: number) => {
+    const randomSeed = (seed) => {
         const x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     };
@@ -174,4 +174,3 @@ export function getWeeklyTrendingAds(count = 5) {
 
     return shuffled.slice(0, count);
 }
-
