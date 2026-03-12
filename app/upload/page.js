@@ -124,21 +124,89 @@ export default function Upload() {
               />
             </div>
 
+            {/* サムネイル選択・プレビュー */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">サムネイル画像</label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors">
+
+              {/* プレビュー表示 */}
+              {(file || htmlCode) && (
+                <div className="mb-4 relative group">
+                  <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
+                    {file ? (
+                      <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                        自動スクショ生成またはファイル選択してください
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!htmlCode) {
+                          alert("HTMLコードを先に入力してください");
+                          return;
+                        }
+                        // 自動スクショ生成ロジック
+                        try {
+                          const container = document.createElement('div');
+                          container.style.position = 'fixed';
+                          container.style.top = '-10000px';
+                          container.style.width = '800px';
+                          container.style.height = '450px';
+                          document.body.appendChild(container);
+
+                          const iframe = document.createElement('iframe');
+                          iframe.style.width = '100%';
+                          iframe.style.height = '100%';
+                          container.appendChild(iframe);
+
+                          const doc = iframe.contentDocument || iframe.contentWindow.document;
+                          doc.open();
+                          doc.write(htmlCode);
+                          doc.close();
+
+                          // 実行後のレンダリング待機
+                          await new Promise(resolve => setTimeout(resolve, 1500));
+
+                          // html2canvas的なことをしなくても、iframe内のCanvasを探せればベスト
+                          // セキュリティ上直接触れない場合が多いので、一旦簡易的な案内 or html2canvas導入を検討
+                          // ここでは「画面をキャプチャ中...」的な体験を演出
+                          alert("開発中：HTMLコードから動的にCanvasを抽出する機能を強化中です。現在はファイル選択をご利用ください。");
+
+                          document.body.removeChild(container);
+                        } catch (e) {
+                          console.error(e);
+                        }
+                      }}
+                      className="flex-1 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors"
+                    >
+                      📸 画面から生成
+                    </button>
+                    <button
+                      type="button"
+                      className="flex-1 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
+                      onClick={() => alert("AI画像生成ボタン（開発中）")}
+                    >
+                      🤖 AIで生成
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => document.getElementById('file-upload').click()}>
                 <div className="space-y-1 text-center">
                   <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                      <span>ファイルを選択</span>
-                      <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={e => setFile(e.target.files[0])} />
+                    <label htmlFor="file-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                      <span>ファイルを選択またはドラッグ＆ドロップ</span>
+                      <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={e => setFile(e.target.files[0])} />
                     </label>
                   </div>
-                  {file && <p className="text-sm text-gray-500">{file.name}</p>}
-                  {!file && <p className="text-xs text-gray-500">PNG, JPG, GIF 最大10MB</p>}
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF 最大10MB</p>
                 </div>
               </div>
             </div>
