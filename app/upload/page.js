@@ -153,53 +153,73 @@ export default function Upload() {
                         // 自動スクショ生成ロジック
                         try {
                           const container = document.createElement('div');
+                          container.id = 'capture-container';
                           container.style.position = 'fixed';
                           container.style.top = '0';
-                          container.style.left = '-2000px'; // 画面外
+                          container.style.left = '0';
                           container.style.width = '800px';
                           container.style.height = '450px';
+                          container.style.zIndex = '-9999';
+                          container.style.visibility = 'hidden';
                           document.body.appendChild(container);
 
                           const iframe = document.createElement('iframe');
-                          iframe.style.width = '100%';
-                          iframe.style.height = '100%';
+                          iframe.style.width = '800px';
+                          iframe.style.height = '450px';
                           iframe.style.border = 'none';
                           container.appendChild(iframe);
 
                           const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+                          // iframeの読み込み完了を待つPromise
+                          const waitLoad = new Promise((resolve) => {
+                            iframe.onload = resolve;
+                            // もしonloadが発火しない場合のタイムアウト
+                            setTimeout(resolve, 3000);
+                          });
+
                           doc.open();
                           doc.write(`
-                            <style>body { margin: 0; overflow: hidden; }</style>
-                            ${htmlCode}
+                            <!DOCTYPE html>
+                            <html>
+                            <head><style>body { margin: 0; overflow: hidden; background: white; }</style></head>
+                            <body>${htmlCode}</body>
+                            </html>
                           `);
                           doc.close();
 
-                          // 実行後のレンダリング待機 (アセット読み込みなど)
-                          await new Promise(resolve => setTimeout(resolve, 2000));
+                          await waitLoad;
+                          // 追加のレンダリング待機
+                          await new Promise(r => setTimeout(r, 1000));
 
-                          // html2canvasでiframeの内容をキャプチャ
+                          // html2canvasでキャプチャ
                           const canvas = await html2canvas(doc.body, {
                             width: 800,
                             height: 450,
                             scale: 1,
                             useCORS: true,
-                            logging: false
+                            allowTaint: true,
+                            backgroundColor: '#ffffff'
                           });
 
-                          // Blobに変換してFileとして扱う
+                          // Blobに変換
                           canvas.toBlob((blob) => {
                             if (blob) {
-                              const capturedFile = new File([blob], "thumbnail.png", { type: "image/png" });
+                              const capturedFile = new File([blob], `thumb_${Date.now()}.png`, { type: "image/png" });
                               setFile(capturedFile);
                               alert("ゲーム画面をキャプチャしました！");
+                            } else {
+                              throw new Error("Blob conversion failed");
                             }
                             document.body.removeChild(container);
                             setLoading(false);
                           }, 'image/png');
 
                         } catch (e) {
-                          console.error(e);
+                          console.error("Capture Error:", e);
                           alert("キャプチャに失敗しました。ファイル選択をお試しください。");
+                          const old = document.getElementById('capture-container');
+                          if (old) document.body.removeChild(old);
                           setLoading(false);
                         }
                       }}
