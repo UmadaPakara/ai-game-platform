@@ -71,7 +71,7 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
                         {game.title}
                     </h3>
                     <p className="text-xs text-gray-500 mt-1 hover:text-gray-900 transition-colors line-clamp-1">
-                        {game.profiles?.username || "作者不明"}
+                        {game.profiles?.username || "ユーザー"}
                     </p>
                     <div className="flex items-center text-[11px] text-gray-400 mt-1 space-x-1.5">
                         <span>{game.views || 0} 回視聴</span>

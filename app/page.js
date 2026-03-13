@@ -58,7 +58,7 @@ function HomeContent() {
 
         const joined = gamesData.map(g => ({
           ...g,
-          profiles: profileMap[g.user_id] || null
+          profiles: profileMap[g.user_id] || { username: "ユーザー" }
         }))
         setGames(joined)
       } else {

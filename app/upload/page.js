@@ -86,8 +86,11 @@ export default function Upload() {
       let thumbnailUrl = null
 
       // 🔹 サムネアップロード
+      // 🔹 サムネアップロード
       if (file) {
-        const fileName = `${user.id}-${Date.now()}-${file.name}`
+        const fileExt = file.name.split('.').pop() || 'jpg'
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`
+        console.log("Uploading safe filename:", fileName)
 
         const { error: uploadError } = await supabase.storage
           .from("thumbnails")

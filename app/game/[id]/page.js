@@ -80,9 +80,9 @@ export default function GamePage() {
         .limit(6)
       
       const gamesWithProfiles = await Promise.all((simpleData || []).map(async (g) => {
-        if (!g.user_id) return { ...g, profiles: null }
+        if (!g.user_id) return { ...g, profiles: { username: "匿名ユーザー" } } // Improved fallback
         const { data: p } = await supabase.from("profiles").select("username").eq("id", g.user_id).single()
-        return { ...g, profiles: p || null }
+        return { ...g, profiles: p || { username: "匿名ユーザー" } } // Improved fallback
       }))
       setRelatedGames(gamesWithProfiles)
     } else {
@@ -223,7 +223,7 @@ export default function GamePage() {
                   {(game.profiles?.username || game.title).charAt(0)}
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-gray-900 leading-none">{game.profiles?.username || "作者不明"}</span>
+                  <span className="font-bold text-gray-900 leading-none">{game.profiles?.username || "ユーザー"}</span>
                   <span className="text-[11px] text-gray-400 mt-1">
                     👀 {game.views || 0} 回視聴
                   </span>
@@ -319,7 +319,7 @@ export default function GamePage() {
                   <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
                     {rg.title}
                   </h3>
-                  <span className="text-[11px] text-gray-500 mt-1.5">{rg.profiles?.username || "作者不明"}</span>
+                  <span className="text-[11px] text-gray-500 mt-1.5">{rg.profiles?.username || "ユーザー"}</span>
                   <span className="text-[11px] text-gray-400 mt-0.5">{rg.views || 0} 回視聴</span>
                 </div>
               </div>
