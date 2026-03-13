@@ -11,6 +11,7 @@ import { Game, Comment } from "@/types"
 export default function GamePage() {
   const { id } = useParams()
   const router = useRouter()
+  const containerRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const { language, t } = useLanguage()
  
@@ -20,9 +21,9 @@ export default function GamePage() {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
  
   const toggleFullscreen = () => {
-    if (!iframeRef.current) return
+    if (!containerRef.current) return
     if (!document.fullscreenElement) {
-      iframeRef.current.requestFullscreen()
+      containerRef.current.requestFullscreen()
     } else {
       document.exitFullscreen()
     }
@@ -190,8 +191,9 @@ export default function GamePage() {
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Play Area Wrapper */}
         <div
-          className={`w-full bg-black rounded-xl overflow-hidden shadow-2xl relative group transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 rounded-none' : ''}`}
-          style={{ aspectRatio: aspect }}
+          ref={containerRef}
+          className={`w-full bg-black rounded-xl overflow-hidden shadow-2xl relative group transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 rounded-none flex items-center justify-center' : ''}`}
+          style={{ aspectRatio: isFullscreen ? 'auto' : aspect }}
         >
           <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
@@ -211,7 +213,7 @@ export default function GamePage() {
           <iframe
             ref={iframeRef}
             srcDoc={game.html_code}
-            className="w-full h-full border-none"
+            className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-full'} border-none`}
             allowFullScreen
           />
         </div>
@@ -348,5 +350,3 @@ export default function GamePage() {
     </div>
   )
 }
-
-// Removed legacy inline styles
