@@ -140,6 +140,16 @@ export default function GamePage() {
       document.removeEventListener("fullscreenchange", handleChange)
   }, [])
  
+  // フルスクリーン切り替え時に子要素へリサイズイベントを通知
+  useEffect(() => {
+    if (isFullscreen && iframeRef.current) {
+      const timer = setTimeout(() => {
+        iframeRef.current?.contentWindow?.dispatchEvent(new Event('resize'));
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isFullscreen]);
+ 
   const handleLike = async () => {
     const { data: userData } = await supabase.auth.getUser()
     const user = userData?.user
@@ -212,7 +222,13 @@ export default function GamePage() {
           </div>
           <iframe
             ref={iframeRef}
-            srcDoc={game.html_code}
+            srcDoc={`
+              <style>
+                html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #000; }
+                canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+              </style>
+              ${game.html_code}
+            `}
             className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-full'} border-none`}
             allowFullScreen
           />
