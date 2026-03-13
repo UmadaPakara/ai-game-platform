@@ -4,11 +4,13 @@ import { useEffect, useState, useMemo, Suspense } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter, useSearchParams } from "next/navigation"
 import GameCard from "./components/GameCard"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 function HomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tab = searchParams.get("tab") || "home"
+  const { language, t } = useLanguage()
 
   const [games, setGames] = useState([])
   const [myGames, setMyGames] = useState([])
@@ -58,7 +60,7 @@ function HomeContent() {
 
         const joined = gamesData.map(g => ({
           ...g,
-          profiles: profileMap[g.user_id] || { username: "ユーザー" }
+          profiles: profileMap[g.user_id] || { username: t("common.unknown_author") }
         }))
         setGames(joined)
       } else {
@@ -91,7 +93,7 @@ function HomeContent() {
       setEditBio(profileRes.data.bio || "")
     } else {
       // プロフィールがなければ作成
-      await supabase.from("profiles").insert({ id: currentUser.id, username: "ユーザー", bio: "" })
+      await supabase.from("profiles").insert({ id: currentUser.id, username: t("common.unknown_author"), bio: "" })
       const { data: newProfile } = await supabase.from("profiles").select("*").eq("id", currentUser.id).single()
       if (newProfile) {
         setProfile(newProfile)
@@ -117,14 +119,14 @@ function HomeContent() {
     await supabase.from("profiles").update({ username: editName, bio: editBio }).eq("id", user.id)
     setIsEditing(false)
     setProfile(prev => prev ? { ...prev, username: editName, bio: editBio } : prev)
-    alert("更新しました")
+    alert(language === "ja" ? "更新しました" : "Profile updated")
   }
 
   // ── HTML更新（本人のみ）──────────────────────────────────────
   const updateGameHtml = async (gameId) => {
     if (!user) return
     await supabase.from("games").update({ html_code: editHtml }).eq("id", gameId).eq("user_id", user.id)
-    alert("HTMLを更新しました")
+    alert(language === "ja" ? "HTMLを更新しました" : "HTML updated")
     setEditingGameId(null)
     const { data } = await supabase.from("games").select("*").eq("user_id", user.id)
     setMyGames(data || [])
@@ -133,15 +135,18 @@ function HomeContent() {
   // ── ゲーム削除（本人のみ）────────────────────────────────────
   const deleteGame = async (gameId) => {
     if (!user) return
-    if (!confirm("このゲームを削除してもよろしいですか？（この操作は取り消せません）")) return
+    const confirmMsg = language === "ja" 
+      ? "このゲームを削除してもよろしいですか？（この操作は取り消せません）" 
+      : "Are you sure you want to delete this game? (This cannot be undone)"
+    if (!confirm(confirmMsg)) return
 
     const { error } = await supabase.from("games").delete().eq("id", gameId).eq("user_id", user.id)
     
     if (error) {
       console.error("Delete error:", error)
-      alert("削除に失敗しました")
+      alert(language === "ja" ? "削除に失敗しました" : "Failed to delete")
     } else {
-      alert("削除しました")
+      alert(language === "ja" ? "削除しました" : "Deleted successfully")
       // ステートを更新
       setGames(prev => prev.filter(g => g.id !== gameId))
       setMyGames(prev => prev.filter(g => g.id !== gameId))
@@ -184,13 +189,13 @@ function HomeContent() {
               onClick={() => setSort("new")}
               className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${sort === "new" ? "bg-gray-900 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"}`}
             >
-              新着順
+              {language === "ja" ? "新着順" : "Newest"}
             </button>
             <button
               onClick={() => setSort("likes")}
               className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${sort === "likes" ? "bg-gray-900 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"}`}
             >
-              人気順
+              {language === "ja" ? "人気順" : "Most Liked"}
             </button>
           </div>
         )}
@@ -216,10 +221,13 @@ function HomeContent() {
         {!isLoading && (tab === "home" || tab === "favorites") && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400">
             <div className="text-6xl mb-4 grayscale opacity-20">🎮</div>
-            <h3 className="text-xl font-bold mb-2 text-gray-600">ゲームが見つかりません</h3>
+            <h3 className="text-xl font-bold mb-2 text-gray-600">
+              {language === "ja" ? "ゲームが見つかりません" : "No games found"}
+            </h3>
             <p className="text-sm">
-              {q ? `"${q}" に一致する結果はありませんでした。` :
-                tab === "favorites" ? "お気に入りのゲームがまだありません。" : "投稿されたゲームがまだありません。"}
+              {q ? (language === "ja" ? `"${q}" に一致する結果はありませんでした。` : `No results for "${q}".`) :
+                tab === "favorites" ? (language === "ja" ? "お気に入りのゲームがまだありません。" : "No favorite games yet.") : 
+                (language === "ja" ? "投稿されたゲームがまだありません。" : "No games uploaded yet.")}
             </p>
           </div>
         )}
@@ -236,22 +244,28 @@ function HomeContent() {
                     </div>
                     <div>
                       <h2 className="text-3xl font-bold text-gray-900 mb-2">{profile.username}</h2>
-                      <p className="text-gray-600 whitespace-pre-wrap">{profile.bio || "自己紹介がまだありません。"}</p>
+                      <p className="text-gray-600 whitespace-pre-wrap">
+                        {profile.bio || (language === "ja" ? "自己紹介がまだありません。" : "No bio yet.")}
+                      </p>
                     </div>
                   </div>
                   <button
                     className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium rounded-lg transition-colors"
                     onClick={() => setIsEditing(true)}
                   >
-                    プロフィールを編集
+                    {language === "ja" ? "プロフィールを編集" : "Edit Profile"}
                   </button>
                 </div>
 
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">🎮 自分の投稿</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                  🎮 {language === "ja" ? "自分の投稿" : "My Uploads"}
+                </h3>
 
                 {myGames.length === 0 && (
                   <div className="bg-gray-50 rounded-xl p-8 text-center text-gray-500 border border-gray-100">
-                    まだ投稿がありません。<br />右上の「投稿する」から新しいゲームを作ってみましょう！
+                    {language === "ja" 
+                      ? "まだ投稿がありません。右上の「投稿する」から新しいゲームを作ってみましょう！" 
+                      : "No uploads yet. Create your first game from 'Upload'!"}
                   </div>
                 )}
 
@@ -270,7 +284,9 @@ function HomeContent() {
 
                       {editingGameId === game.id ? (
                         <div className="mt-4 border-t border-gray-100 pt-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">HTMLコードの編集</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                             {language === "ja" ? "HTMLコードの編集" : "Edit HTML Code"}
+                          </label>
                           <textarea
                             className="w-full h-48 p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                             value={editHtml}
@@ -278,17 +294,17 @@ function HomeContent() {
                           />
                           <div className="flex gap-2 mt-3">
                             <button
-                              className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
-                              onClick={() => updateGameHtml(game.id)}
-                            >
-                              保存する
-                            </button>
-                            <button
-                              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors"
-                              onClick={() => setEditingGameId(null)}
-                            >
-                              キャンセル
-                            </button>
+                               className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+                               onClick={() => updateGameHtml(game.id)}
+                             >
+                               {t("common.confirm")}
+                             </button>
+                             <button
+                               className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors"
+                               onClick={() => setEditingGameId(null)}
+                             >
+                               {t("common.cancel")}
+                             </button>
                           </div>
                         </div>
                       ) : (
@@ -297,18 +313,18 @@ function HomeContent() {
                             className="flex-1 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
                             onClick={() => { setEditingGameId(game.id); setEditHtml(game.html_code) }}
                           >
-                            ✏️ HTML編集
+                            ✏️ {language === "ja" ? "HTML編集" : "Edit HTML"}
                           </button>
                           <button
                             className="flex-1 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition-colors border border-gray-200 flex items-center justify-center gap-2"
                             onClick={() => router.push(`/game/${game.id}`)}
                           >
-                            ▶️ プレイ
+                            ▶️ {t("game.play")}
                           </button>
                           <button
                             className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors border border-red-100 flex items-center justify-center"
                             onClick={() => deleteGame(game.id)}
-                            title="削除する"
+                            title={t("common.delete")}
                           >
                             🗑️
                           </button>
@@ -320,10 +336,14 @@ function HomeContent() {
               </>
             ) : (
               <div className="max-w-xl mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-6">プロフィール編集</h2>
+                <h2 className="text-2xl font-bold mb-6">
+                  {language === "ja" ? "プロフィール編集" : "Edit Profile"}
+                </h2>
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">ユーザー名</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {language === "ja" ? "ユーザー名" : "Username"}
+                    </label>
                     <input
                       className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                       value={editName}
@@ -331,7 +351,9 @@ function HomeContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">自己紹介</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {language === "ja" ? "自己紹介" : "Bio"}
+                    </label>
                     <textarea
                       className="w-full px-4 py-2 h-32 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                       value={editBio}
@@ -343,13 +365,13 @@ function HomeContent() {
                       className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
                       onClick={updateProfile}
                     >
-                      保存する
+                      {t("common.confirm")}
                     </button>
                     <button
                       className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors"
                       onClick={() => setIsEditing(false)}
                     >
-                      キャンセル
+                      {t("common.cancel")}
                     </button>
                   </div>
                 </div>
@@ -362,8 +384,12 @@ function HomeContent() {
         {tab === "profile" && !user && (
           <div className="flex flex-col items-center justify-center py-20 text-gray-500">
             <div className="text-6xl mb-4">🔒</div>
-            <h3 className="text-xl font-semibold mb-2">ログインが必要です</h3>
-            <p>プロフィールを見るにはログインしてください。</p>
+            <h3 className="text-xl font-semibold mb-2">
+              {language === "ja" ? "ログインが必要です" : "Login Required"}
+            </h3>
+            <p>
+              {language === "ja" ? "プロフィールを見るにはログインしてください。" : "Please login to view your profile."}
+            </p>
           </div>
         )}
 
@@ -374,7 +400,7 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500">読み込み中...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500">Loading...</div>}>
       <HomeContent />
     </Suspense>
   )

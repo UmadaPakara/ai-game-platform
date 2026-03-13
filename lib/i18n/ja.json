@@ -1,0 +1,46 @@
+{
+  "common": {
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "home": "ホーム",
+    "ranking": "ランキング",
+    "upload": "投稿する",
+    "profile": "プロフィール",
+    "favorites": "お気に入り",
+    "search_placeholder": "ゲームを検索...",
+    "views": "{count} 回視聴",
+    "likes": "{count}",
+    "loading": "読み込み中...",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "delete": "削除",
+    "unknown_author": "ユーザー"
+  },
+  "home": {
+    "trending": "急上昇トレンド",
+    "recommended": "あなたへのおすすめ",
+    "new_arrivals": "新着ゲーム"
+  },
+  "upload": {
+    "title": "ゲームを投稿",
+    "subtitle": "あなたの作ったゲームを世界中に公開しよう",
+    "game_title": "ゲームタイトル",
+    "description": "ゲームの説明",
+    "html_code": "HTML/CSS/JSコード",
+    "thumbnail": "サムネイル画像",
+    "thumbnail_hint": "PNG, JPG, GIF 最大10MB (自動で1280x720に調整されます)",
+    "submit": "ゲームを投稿する",
+    "submitting": "投稿中...",
+    "success": "投稿完了！",
+    "ai_help": "AIでゲームを生成する",
+    "ai_links": "ChatGPTやGeminiを使ってゲームコードを生成し、ここに貼り付けてください。"
+  },
+  "game": {
+    "play": "プレイ",
+    "fullscreen": "フルスクリーン",
+    "comments": "コメント",
+    "no_comments": "コメントはまだありません。",
+    "related": "次におすすめ",
+    "published_at": "{date} 公開"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "home": "Home",
+    "ranking": "Ranking",
+    "upload": "Upload",
+    "profile": "Profile",
+    "favorites": "Favorites",
+    "search_placeholder": "Search games...",
+    "views": "{count} views",
+    "likes": "{count}",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "unknown_author": "User"
+  },
+  "home": {
+    "trending": "Trending Now",
+    "recommended": "Recommended for You",
+    "new_arrivals": "New Arrivals"
+  },
+  "upload": {
+    "title": "Upload Game",
+    "subtitle": "Share your creation with the world",
+    "game_title": "Game Title",
+    "description": "Description",
+    "html_code": "HTML/CSS/JS Code",
+    "thumbnail": "Thumbnail Image",
+    "thumbnail_hint": "PNG, JPG, GIF Max 10MB (Automatically resized to 1280x720)",
+    "submit": "Publish Game",
+    "submitting": "Uploading...",
+    "success": "Upload Successful!",
+    "ai_help": "Generate Game with AI",
+    "ai_links": "Generate game code using ChatGPT or Gemini and paste it here."
+  },
+  "game": {
+    "play": "Play",
+    "fullscreen": "Fullscreen",
+    "comments": "Comments",
+    "no_comments": "No comments yet.",
+    "related": "Up Next",
+    "published_at": "Published on {date}"
+  }
+}

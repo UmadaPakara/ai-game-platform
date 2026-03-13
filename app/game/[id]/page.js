@@ -5,11 +5,13 @@ import { supabase } from "@/lib/supabase"
 import { useParams, useRouter } from "next/navigation"
 import AffiliateSlot from "../../components/AffiliateSlot"
 import { AFFILIATE_ADS } from "@/lib/affiliate"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
 
 export default function GamePage() {
   const { id } = useParams()
   const router = useRouter()
   const iframeRef = useRef(null)
+  const { language, t } = useLanguage()
 
   const [game, setGame] = useState(null)
   const [comments, setComments] = useState([])
@@ -139,7 +141,7 @@ export default function GamePage() {
     const { data: userData } = await supabase.auth.getUser()
     const user = userData?.user
 
-    if (!user) return alert("ログインしてください")
+    if (!user) return alert(language === "ja" ? "ログインしてください" : "Please login")
 
     const { data: existing } = await supabase
       .from("likes")
@@ -173,7 +175,7 @@ export default function GamePage() {
     loadGame()
   }
 
-  if (!game) return <div className="p-10 text-gray-500">Loading...</div>
+  if (!game) return <div className="p-10 text-gray-500">{t("common.loading")}</div>
 
   const aspect = game.width && game.height ? `${game.width} / ${game.height}` : "4 / 3"
 
@@ -191,7 +193,7 @@ export default function GamePage() {
             <button
               onClick={toggleFullscreen}
               className="p-2.5 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-lg transition-colors border border-white/10 shadow-lg"
-              title="フルスクリーン"
+              title={t("game.fullscreen")}
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isFullscreen ? (
@@ -223,9 +225,9 @@ export default function GamePage() {
                   {(game.profiles?.username || game.title).charAt(0)}
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-gray-900 leading-none">{game.profiles?.username || "ユーザー"}</span>
+                  <span className="font-bold text-gray-900 leading-none">{game.profiles?.username || t("common.unknown_author")}</span>
                   <span className="text-[11px] text-gray-400 mt-1">
-                    👀 {game.views || 0} 回視聴
+                    👀 {t("common.views", { count: game.views || 0 })}
                   </span>
                 </div>
               </div>
@@ -244,9 +246,9 @@ export default function GamePage() {
             {/* Description Box */}
             <div className="bg-gray-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed border border-gray-100">
               <span className="font-bold mb-1.5 block text-gray-900">
-                {new Date(game.created_at || "2020-01-01").toLocaleDateString('ja-JP')} 公開
+                {t("game.published_at", { date: new Date(game.created_at || "2020-01-01").toLocaleDateString(language === "ja" ? 'ja-JP' : 'en-US') })}
               </span>
-              <p className="whitespace-pre-wrap">{game.description || "このゲームの説明はありません。"}</p>
+              <p className="whitespace-pre-wrap">{game.description || (language === "ja" ? "このゲームの説明はありません。" : "No description for this game.")}</p>
             </div>
 
             {/* 🔥 Affiliate Banner Slot */}
@@ -263,7 +265,7 @@ export default function GamePage() {
             {/* Comments Area */}
             <div className="mt-4">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span>コメント</span>
+                <span>{t("game.comments")}</span>
                 <span className="text-gray-400 font-medium">{comments.length}</span>
               </h2>
 
@@ -275,9 +277,9 @@ export default function GamePage() {
                     </div>
                     <div className="flex flex-col flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-bold text-gray-900">匿名ユーザー</span>
+                        <span className="text-sm font-bold text-gray-900">{language === "ja" ? "匿名ユーザー" : "Anonymous User"}</span>
                         <span className="text-[11px] text-gray-400">
-                          {new Date(c.created_at).toLocaleDateString()}
+                          {new Date(c.created_at).toLocaleDateString(language === "ja" ? "ja-JP" : "en-US")}
                         </span>
                       </div>
                       <p className="text-sm text-gray-800 leading-relaxed">{c.content}</p>
@@ -287,7 +289,7 @@ export default function GamePage() {
 
                 {comments.length === 0 && (
                   <div className="text-sm text-gray-400 py-10 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                    コメントはまだありません。
+                    {t("game.no_comments")}
                   </div>
                 )}
               </div>
@@ -299,7 +301,7 @@ export default function GamePage() {
       {/* 🔴 Right Column: Related Games Sidebar */}
       {!isFullscreen && (
         <aside className="w-full lg:w-[380px] flex-shrink-0 flex flex-col gap-6">
-          <h2 className="text-lg font-bold text-gray-900 px-1 border-l-4 border-indigo-600 pl-3">次におすすめ</h2>
+          <h2 className="text-lg font-bold text-gray-900 px-1 border-l-4 border-indigo-600 pl-3">{t("game.related")}</h2>
 
           <div className="flex flex-col gap-4">
             {relatedGames.map(rg => (
@@ -319,8 +321,8 @@ export default function GamePage() {
                   <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
                     {rg.title}
                   </h3>
-                  <span className="text-[11px] text-gray-500 mt-1.5">{rg.profiles?.username || "ユーザー"}</span>
-                  <span className="text-[11px] text-gray-400 mt-0.5">{rg.views || 0} 回視聴</span>
+                  <span className="text-[11px] text-gray-500 mt-1.5">{rg.profiles?.username || t("common.unknown_author")}</span>
+                  <span className="text-[11px] text-gray-400 mt-0.5">{t("common.views", { count: rg.views || 0 })}</span>
                 </div>
               </div>
             ))}

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Menu, Gamepad2, Bell } from "lucide-react";
+import { Search, Menu, Gamepad2, Bell, Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AuthButton from "./AuthButton";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Header() {
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
+    const { language, setLanguage, t } = useLanguage();
 
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -45,7 +47,7 @@ export default function Header() {
                     </div>
                     <input
                         type="text"
-                        placeholder="ゲームを検索"
+                        placeholder={t("common.search_placeholder")}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="flex-1 py-2 bg-transparent outline-none text-gray-800"
@@ -60,6 +62,13 @@ export default function Header() {
             <div className="flex items-center gap-2 sm:gap-4">
                 <button className="p-2 sm:hidden hover:bg-gray-100 rounded-full">
                     <Search className="w-5 h-5 text-gray-700" />
+                </button>
+                <button 
+                    onClick={() => setLanguage(language === "ja" ? "en" : "ja")}
+                    className="p-2 hover:bg-gray-100 rounded-full text-gray-700 flex items-center gap-1 transition-colors border border-gray-100 sm:border-0"
+                >
+                    <Globe className="w-5 h-5" />
+                    <span className="text-xs font-bold hidden sm:block">{language === "ja" ? "EN" : "JP"}</span>
                 </button>
                 <button className="p-2 hover:bg-gray-100 rounded-full hidden sm:block">
                     <Bell className="w-6 h-6 text-gray-700" />

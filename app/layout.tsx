@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import ClientLayout from "./components/ClientLayout";
 
 const geistSans = Geist({
@@ -34,9 +35,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 min-h-screen font-sans`}
       >
-        <Suspense fallback={null}>
-          <ClientLayout>{children}</ClientLayout>
-        </Suspense>
+        <LanguageProvider>
+          <Suspense fallback={null}>
+            <ClientLayout>{children}</ClientLayout>
+          </Suspense>
+        </LanguageProvider>
       </body>
     </html>
   );
