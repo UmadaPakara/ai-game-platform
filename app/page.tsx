@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabase"
 import { useRouter, useSearchParams } from "next/navigation"
 import GameCard from "./components/GameCard"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
+import { Game, Profile } from "@/types"
+import { User } from "@supabase/supabase-js"
 
 function HomeContent() {
   const router = useRouter()
@@ -12,20 +14,20 @@ function HomeContent() {
   const tab = searchParams.get("tab") || "home"
   const { language, t } = useLanguage()
 
-  const [games, setGames] = useState([])
-  const [myGames, setMyGames] = useState([])
-  const [favoriteIds, setFavoriteIds] = useState([])
-  const [sort, setSort] = useState("new")
-  const [isLoading, setIsLoading] = useState(true)
+  const [games, setGames] = useState<Game[]>([])
+  const [myGames, setMyGames] = useState<Game[]>([])
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([])
+  const [sort, setSort] = useState<string>("new")
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [editName, setEditName] = useState("")
-  const [editBio, setEditBio] = useState("")
-  const [isEditing, setIsEditing] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [editName, setEditName] = useState<string>("")
+  const [editBio, setEditBio] = useState<string>("")
+  const [isEditing, setIsEditing] = useState<boolean>(false)
 
-  const [editingGameId, setEditingGameId] = useState(null)
-  const [editHtml, setEditHtml] = useState("")
+  const [editingGameId, setEditingGameId] = useState<string | null>(null)
+  const [editHtml, setEditHtml] = useState<string>("")
 
   const q = searchParams.get("q") || ""
 
@@ -53,21 +55,21 @@ function HomeContent() {
           .select("id, username")
           .in("id", userIds)
         
-        const profileMap = {}
+        const profileMap: Record<string, { username: string }> = {}
         profilesData?.forEach(p => {
           profileMap[p.id] = p
         })
 
-        const joined = gamesData.map(g => ({
+        const joined: Game[] = gamesData.map(g => ({
           ...g,
           profiles: profileMap[g.user_id] || { username: t("common.unknown_author") }
         }))
         setGames(joined)
       } else {
-        setGames(gamesData)
+        setGames(gamesData as Game[])
       }
     } else {
-      setGames(data || [])
+      setGames(data as Game[] || [])
     }
   }
 
@@ -123,17 +125,17 @@ function HomeContent() {
   }
 
   // ── HTML更新（本人のみ）──────────────────────────────────────
-  const updateGameHtml = async (gameId) => {
+  const updateGameHtml = async (gameId: string) => {
     if (!user) return
     await supabase.from("games").update({ html_code: editHtml }).eq("id", gameId).eq("user_id", user.id)
     alert(language === "ja" ? "HTMLを更新しました" : "HTML updated")
     setEditingGameId(null)
     const { data } = await supabase.from("games").select("*").eq("user_id", user.id)
-    setMyGames(data || [])
+    setMyGames(data as Game[] || [])
   }
 
   // ── ゲーム削除（本人のみ）────────────────────────────────────
-  const deleteGame = async (gameId) => {
+  const deleteGame = async (gameId: string) => {
     if (!user) return
     const confirmMsg = language === "ja" 
       ? "このゲームを削除してもよろしいですか？（この操作は取り消せません）" 
@@ -172,7 +174,7 @@ function HomeContent() {
     if (sort === "likes") {
       list.sort((a, b) => (b.likes || 0) - (a.likes || 0))
     } else {
-      list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      list.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
     }
 
     return list

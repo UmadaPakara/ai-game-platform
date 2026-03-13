@@ -1,22 +1,23 @@
 "use client"
-
+ 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import html2canvas from "html2canvas"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
-
+import { User } from "@supabase/supabase-js"
+ 
 export default function Upload() {
   const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
   const { language, t } = useLanguage()
-
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [htmlCode, setHtmlCode] = useState("")
-  const [file, setFile] = useState(null)
-
+ 
+  const [title, setTitle] = useState<string>("")
+  const [description, setDescription] = useState<string>("")
+  const [htmlCode, setHtmlCode] = useState<string>("")
+  const [file, setFile] = useState<File | null>(null)
+ 
   useEffect(() => {
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser()
@@ -24,9 +25,9 @@ export default function Upload() {
     }
     fetchUser()
   }, [])
-
+ 
   // 🔹 画像リサイズユーティリティ
-  const resizeImage = (file) => {
+  const resizeImage = (file: File): Promise<File> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -38,12 +39,13 @@ export default function Upload() {
           canvas.width = targetW;
           canvas.height = targetH;
           const ctx = canvas.getContext("2d");
-
+          if (!ctx) return;
+ 
           // アスペクト比を維持しながらカバー（中央切り抜き）
           const imgRatio = img.width / img.height;
           const targetRatio = targetW / targetH;
-          let drawW, drawH, offsetX, offsetY;
-
+          let drawW: number, drawH: number, offsetX: number, offsetY: number;
+ 
           if (imgRatio > targetRatio) {
             drawH = targetH;
             drawW = targetH * imgRatio;
@@ -55,55 +57,56 @@ export default function Upload() {
             offsetX = 0;
             offsetY = (targetH - drawH) / 2;
           }
-
+ 
           ctx.fillStyle = "#FFFFFF"; // 背景を白で埋める
           ctx.fillRect(0, 0, targetW, targetH);
           ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
-
+ 
           canvas.toBlob((blob) => {
-            const resizedFile = new File([blob], file.name, { type: "image/jpeg" });
-            resolve(resizedFile);
-          }, "image/jpeg", 0.8); // 0.9から0.8に下げてファイルサイズをより確実に縮小
+            if (blob) {
+              const resizedFile = new File([blob], file.name, { type: "image/jpeg" });
+              resolve(resizedFile);
+            }
+          }, "image/jpeg", 0.8);
         };
-        img.src = e.target.result;
+        img.src = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     });
   };
-
+ 
   const handleUpload = async () => {
     if (!user) {
       alert(t("common.login"))
       return
     }
-
+ 
     if (!title || !htmlCode) {
       alert(language === "ja" ? "タイトルとHTMLコードは必須です" : "Title and HTML code are required")
       return
     }
-
+ 
     try {
       setLoading(true)
-
-      let thumbnailUrl = null
-
-      // 🔹 サムネアップロード
+ 
+      let thumbnailUrl: string | null = null
+ 
       // 🔹 サムネアップロード
       if (file) {
         const fileExt = file.name.split('.').pop() || 'jpg'
         const fileName = `${user.id}-${Date.now()}.${fileExt}`
         console.log("Uploading safe filename:", fileName)
-
+ 
         const { error: uploadError } = await supabase.storage
           .from("thumbnails")
           .upload(fileName, file)
-
+ 
         if (uploadError) throw uploadError
-
+ 
         const { data: urlData } = supabase.storage
           .from("thumbnails")
           .getPublicUrl(fileName)
-
+ 
         if (!urlData?.publicUrl) {
           const errorMsg = language === "ja" ? "サムネイルのURL取得に失敗しました。" : "Failed to get thumbnail URL"
           throw new Error(errorMsg)
@@ -111,18 +114,18 @@ export default function Upload() {
         thumbnailUrl = urlData.publicUrl
         console.log("Upload Success. Thumbnail URL:", thumbnailUrl)
       }
-
+ 
       // 🔹 プロフィールの存在確認
       const { data: profile, error: checkError } = await supabase
         .from("profiles")
         .select("id")
         .eq("id", user.id)
-        .maybeSingle(); // single() ではなく maybeSingle() を使用してエラーを避ける
+        .maybeSingle();
       
       if (checkError) {
         console.warn("Profile check error:", checkError.message);
       }
-
+ 
       if (!profile) {
         console.log("Profile not found, creating one...");
         const { error: profileError } = await supabase
@@ -131,10 +134,9 @@ export default function Upload() {
         
         if (profileError) {
           console.error("Profile creation error:", profileError.message);
-          // 外部キー制約がある場合、ここで失敗すると次のInsertも失敗します
         }
       }
-
+ 
       // 🔹 ゲーム投稿（user_id付き）
       const { error: insertError } = await supabase.from("games").insert([
         {
@@ -147,12 +149,12 @@ export default function Upload() {
           views: 0
         }
       ])
-
+ 
       if (insertError) throw insertError
-
+ 
       alert(t("upload.success"))
       router.push("/")
-    } catch (err) {
+    } catch (err: any) {
       console.error("HandleUpload Error:", err)
       const failMsg = t("upload.failed")
       alert(`${failMsg}: ${err.message || "内部エラーが発生しました"}`)
@@ -160,21 +162,21 @@ export default function Upload() {
       setLoading(false)
     }
   }
-
+ 
   return (
     <>
       <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
-
+ 
         <div className="flex items-center gap-3 mb-8">
           <span className="text-3xl">🎮</span>
           <h1 className="text-2xl font-bold text-gray-900">{t("upload.title")}</h1>
         </div>
-
+ 
         <div className="flex flex-col lg:flex-row gap-8">
-
+ 
           {/* 左：投稿フォーム */}
           <div className="flex-1 bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
-
+ 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.game_title")} <span className="text-red-500">*</span></label>
               <input
@@ -184,7 +186,7 @@ export default function Upload() {
                 onChange={e => setTitle(e.target.value)}
               />
             </div>
-
+ 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.description")}</label>
               <textarea
@@ -194,7 +196,7 @@ export default function Upload() {
                 onChange={e => setDescription(e.target.value)}
               />
             </div>
-
+ 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.html_code")} <span className="text-red-500">*</span></label>
               <textarea
@@ -204,11 +206,11 @@ export default function Upload() {
                 onChange={e => setHtmlCode(e.target.value)}
               />
             </div>
-
+ 
             {/* サムネイル選択・プレビュー */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.thumbnail")}</label>
-
+ 
                 {/* プレビュー表示 */}
                 {file && (
                   <div className="mb-4 relative group">
@@ -217,8 +219,8 @@ export default function Upload() {
                     </div>
                   </div>
                 )}
-
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => document.getElementById('file-upload').click()}>
+ 
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => (document.getElementById('file-upload') as HTMLInputElement)?.click()}>
                   <div className="space-y-1 text-center">
                     <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                       <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -233,7 +235,7 @@ export default function Upload() {
                           className="sr-only"
                           accept="image/*"
                           onChange={async (e) => {
-                            const selectedFile = e.target.files[0];
+                            const selectedFile = e.target.files?.[0];
                             if (selectedFile) {
                               setLoading(true);
                               try {
@@ -254,7 +256,7 @@ export default function Upload() {
                   </div>
                 </div>
               </div>
-
+ 
             <div className="pt-4 mt-2 border-t border-gray-100">
               <button
                 className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md disabled:bg-indigo-300 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5"
@@ -273,7 +275,7 @@ export default function Upload() {
               </button>
             </div>
           </div>
-
+ 
           {/* 右：AIリンク */}
           <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6">
             <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-2xl border border-indigo-100 shadow-sm">
@@ -305,11 +307,9 @@ export default function Upload() {
               </a>
             </div>
           </div>
-
+ 
         </div>
       </div>
     </>
   )
 }
-
-// Removed legacy inline styles

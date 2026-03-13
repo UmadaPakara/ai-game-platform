@@ -1,25 +1,27 @@
 "use client"
-
+ 
 import { useEffect, useState, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import { useParams, useRouter } from "next/navigation"
-
+import { Game, Profile as ProfileType } from "@/types"
+import { User } from "@supabase/supabase-js"
+ 
 export default function Profile() {
   const { id } = useParams()
   const router = useRouter()
-
-  const [profile, setProfile] = useState(null)
-  const [games, setGames] = useState([])
-  const [followers, setFollowers] = useState(0)
-  const [following, setFollowing] = useState(0)
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [user, setUser] = useState(null)
-
+ 
+  const [profile, setProfile] = useState<ProfileType | null>(null)
+  const [games, setGames] = useState<Game[]>([])
+  const [followers, setFollowers] = useState<number>(0)
+  const [following, setFollowing] = useState<number>(0)
+  const [isFollowing, setIsFollowing] = useState<boolean>(false)
+  const [user, setUser] = useState<User | null>(null)
+ 
   const fetchUser = useCallback(async () => {
     const { data } = await supabase.auth.getUser()
-    setUser(data?.user)
+    setUser(data?.user ?? null)
   }, [])
-
+ 
   const fetchProfile = useCallback(async () => {
     if (!id) return;
     const { data } = await supabase
@@ -27,10 +29,10 @@ export default function Profile() {
       .select("*")
       .eq("id", id)
       .single()
-
-    setProfile(data)
+ 
+    setProfile(data as ProfileType || null)
   }, [id])
-
+ 
   const fetchGames = useCallback(async () => {
     if (!id) return;
     const { data } = await supabase
@@ -38,45 +40,44 @@ export default function Profile() {
       .select("*")
       .eq("user_id", id)
       .order("created_at", { ascending: false })
-
-    setGames(data || [])
+ 
+    setGames(data as Game[] || [])
   }, [id])
-
+ 
   const fetchFollowData = useCallback(async () => {
     if (!id) return;
     const { count: followerCount } = await supabase
       .from("follows")
       .select("*", { count: "exact", head: true })
       .eq("following_id", id)
-
+ 
     const { count: followingCount } = await supabase
       .from("follows")
       .select("*", { count: "exact", head: true })
       .eq("follower_id", id)
-
+ 
     setFollowers(followerCount || 0)
     setFollowing(followingCount || 0)
   }, [id])
-
+ 
   useEffect(() => {
     if (!id) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProfile()
     fetchGames()
     fetchFollowData()
     fetchUser()
   }, [id, fetchProfile, fetchGames, fetchFollowData, fetchUser])
-
+ 
   const toggleFollow = async () => {
-    if (!user) return
-
+    if (!user || !id) return
+ 
     if (isFollowing) {
       await supabase
         .from("follows")
         .delete()
         .eq("follower_id", user.id)
         .eq("following_id", id)
-
+ 
       setIsFollowing(false)
     } else {
       await supabase
@@ -85,25 +86,25 @@ export default function Profile() {
           follower_id: user.id,
           following_id: id
         })
-
+ 
       setIsFollowing(true)
     }
-
+ 
     fetchFollowData()
   }
-
+ 
   if (!profile) return (
     <div className="flex justify-center items-center min-h-[50vh] text-gray-500">
       Loading...
     </div>
   )
-
+ 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
-
+ 
       {/* 👤 Profile Header */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col sm:flex-row items-center sm:items-start gap-8">
-
+ 
         <div className="w-32 h-32 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 border-4 border-indigo-50 shadow-sm flex items-center justify-center">
           {profile.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -114,11 +115,11 @@ export default function Profile() {
             </span>
           )}
         </div>
-
+ 
         <div className="flex-1 text-center sm:text-left">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">{profile.username}</h2>
           <p className="text-gray-600 mb-4 whitespace-pre-wrap">{profile.bio || "自己紹介がありません。"}</p>
-
+ 
           <div className="flex items-center justify-center sm:justify-start gap-6 text-sm font-medium text-gray-700 mb-6">
             <span className="flex flex-col items-center sm:items-start">
               <span className="text-xl font-bold text-gray-900">{followers}</span> フォロワー
@@ -127,7 +128,7 @@ export default function Profile() {
               <span className="text-xl font-bold text-gray-900">{following}</span> フォロー中
             </span>
           </div>
-
+ 
           {user && user.id !== id && (
             <button
               onClick={toggleFollow}
@@ -141,13 +142,13 @@ export default function Profile() {
           )}
         </div>
       </div>
-
+ 
       {/* 🎮 Games Grid */}
       <div>
         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
           ゲーマーの投稿 <span className="text-gray-400 font-medium text-lg">({games.length})</span>
         </h3>
-
+ 
         {games.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 p-12 text-center text-gray-500">
             まだ投稿がありません。
@@ -184,7 +185,7 @@ export default function Profile() {
           </div>
         )}
       </div>
-
+ 
     </div>
   )
 }

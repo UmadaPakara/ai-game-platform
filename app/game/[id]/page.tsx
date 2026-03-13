@@ -1,23 +1,24 @@
 "use client"
-
+ 
 import { useEffect, useState, useRef, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import { useParams, useRouter } from "next/navigation"
 import AffiliateSlot from "../../components/AffiliateSlot"
 import { AFFILIATE_ADS } from "@/lib/affiliate"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
-
+import { Game, Comment } from "@/types"
+ 
 export default function GamePage() {
   const { id } = useParams()
   const router = useRouter()
-  const iframeRef = useRef(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const { language, t } = useLanguage()
-
-  const [game, setGame] = useState(null)
-  const [comments, setComments] = useState([])
-  const [relatedGames, setRelatedGames] = useState([])
-  const [isFullscreen, setIsFullscreen] = useState(false)
-
+ 
+  const [game, setGame] = useState<Game | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [relatedGames, setRelatedGames] = useState<Game[]>([])
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
+ 
   const toggleFullscreen = () => {
     if (!iframeRef.current) return
     if (!document.fullscreenElement) {
@@ -26,14 +27,14 @@ export default function GamePage() {
       document.exitFullscreen()
     }
   }
-
+ 
   const loadGame = useCallback(async () => {
     const { data, error } = await supabase
       .from("games")
       .select("*, profiles(username)")
       .eq("id", id)
       .single()
-
+ 
     if (error) {
       console.warn("Join with profiles failed, falling back:", error.message)
       const { data: simpleData, error: simpleError } = await supabase
@@ -46,7 +47,7 @@ export default function GamePage() {
         console.error("Game fetch error:", simpleError)
         return
       }
-
+ 
       if (simpleData?.user_id) {
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
@@ -57,22 +58,22 @@ export default function GamePage() {
         if (profileError) {
           console.error("Profile fetch error during fallback:", profileError);
         }
-        setGame({ ...simpleData, profiles: profileData || null })
+        setGame({ ...simpleData, profiles: profileData || null } as Game)
       } else {
-        setGame(simpleData)
+        setGame(simpleData as Game)
       }
     } else {
-      setGame(data)
+      setGame(data as Game)
     }
   }, [id])
-
+ 
   const fetchRelatedGames = useCallback(async () => {
     const { data, error } = await supabase
       .from("games")
       .select("*, profiles(username)")
       .neq("id", id)
       .limit(6)
-
+ 
     if (error) {
       console.warn("Related games join failed, falling back")
       const { data: simpleData } = await supabase
@@ -82,23 +83,23 @@ export default function GamePage() {
         .limit(6)
       
       const gamesWithProfiles = await Promise.all((simpleData || []).map(async (g) => {
-        if (!g.user_id) return { ...g, profiles: { username: "匿名ユーザー" } } // Improved fallback
+        if (!g.user_id) return { ...g, profiles: { username: "匿名ユーザー" } }
         const { data: p } = await supabase.from("profiles").select("username").eq("id", g.user_id).single()
-        return { ...g, profiles: p || { username: "匿名ユーザー" } } // Improved fallback
+        return { ...g, profiles: p || { username: "匿名ユーザー" } }
       }))
-      setRelatedGames(gamesWithProfiles)
+      setRelatedGames(gamesWithProfiles as Game[])
     } else {
-      setRelatedGames(data || [])
+      setRelatedGames(data as Game[] || [])
     }
   }, [id])
-
+ 
   const incrementViews = async () => {
     const { data } = await supabase
       .from("games")
       .select("views")
       .eq("id", id)
       .single()
-
+ 
     if (data) {
       await supabase
         .from("games")
@@ -106,17 +107,17 @@ export default function GamePage() {
         .eq("id", id)
     }
   }
-
+ 
   const fetchComments = async () => {
     const { data } = await supabase
       .from("comments")
       .select("*")
       .eq("game_id", id)
       .order("created_at", { ascending: false })
-
-    setComments(data || [])
+ 
+    setComments(data as Comment[] || [])
   }
-
+ 
   useEffect(() => {
     if (id) {
       incrementViews()
@@ -124,32 +125,33 @@ export default function GamePage() {
       fetchComments()
       fetchRelatedGames()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, loadGame, fetchRelatedGames])
-
+ 
   // フルスクリーン監視
   useEffect(() => {
     const handleChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
     }
-
+ 
     document.addEventListener("fullscreenchange", handleChange)
     return () =>
       document.removeEventListener("fullscreenchange", handleChange)
   }, [])
-
+ 
   const handleLike = async () => {
     const { data: userData } = await supabase.auth.getUser()
     const user = userData?.user
-
+ 
     if (!user) return alert(language === "ja" ? "ログインしてください" : "Please login")
-
+ 
     const { data: existing } = await supabase
       .from("likes")
       .select("id")
       .eq("game_id", id)
       .eq("user_id", user.id)
       .maybeSingle()
-
+ 
     if (existing) {
       await supabase
         .from("likes")
@@ -161,27 +163,29 @@ export default function GamePage() {
         { game_id: id, user_id: user.id }
       ])
     }
-
+ 
     const { count } = await supabase
       .from("likes")
       .select("*", { count: "exact", head: true })
       .eq("game_id", id)
-
+ 
     await supabase
       .from("games")
       .update({ likes: count ?? 0 })
       .eq("id", id)
-
+ 
     loadGame()
   }
-
+ 
   if (!game) return <div className="p-10 text-gray-500">{t("common.loading")}</div>
-
-  const aspect = game.width && game.height ? `${game.width} / ${game.height}` : "4 / 3"
-
+ 
+  const width = (game as any).width
+  const height = (game as any).height
+  const aspect = width && height ? `${width} / ${height}` : "4 / 3"
+ 
   return (
     <div className="max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6 lg:gap-10 min-h-screen font-sans">
-
+ 
       {/* 🔴 Left Column: Video/Game Player & Main Info */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Play Area Wrapper */}
@@ -211,14 +215,14 @@ export default function GamePage() {
             allowFullScreen
           />
         </div>
-
+ 
         {/* Info Area */}
         {!isFullscreen && (
           <div className="mt-5 flex flex-col gap-4">
             <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
               {game.title}
             </h1>
-
+ 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg border border-indigo-50 shadow-sm overflow-hidden">
@@ -231,7 +235,7 @@ export default function GamePage() {
                   </span>
                 </div>
               </div>
-
+ 
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleLike}
@@ -242,7 +246,7 @@ export default function GamePage() {
                 </button>
               </div>
             </div>
-
+ 
             {/* Description Box */}
             <div className="bg-gray-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed border border-gray-100">
               <span className="font-bold mb-1.5 block text-gray-900">
@@ -250,7 +254,7 @@ export default function GamePage() {
               </span>
               <p className="whitespace-pre-wrap">{game.description || (language === "ja" ? "このゲームの説明はありません。" : "No description for this game.")}</p>
             </div>
-
+ 
             {/* 🔥 Affiliate Banner Slot */}
             <AffiliateSlot
               type="banner"
@@ -261,14 +265,14 @@ export default function GamePage() {
               link={AFFILIATE_ADS.gameDetail.banner.link}
               imageUrl={AFFILIATE_ADS.gameDetail.banner.imageUrl}
             />
-
+ 
             {/* Comments Area */}
             <div className="mt-4">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span>{t("game.comments")}</span>
                 <span className="text-gray-400 font-medium">{comments.length}</span>
               </h2>
-
+ 
               <div className="flex flex-col gap-6">
                 {comments.map(c => (
                   <div key={c.id} className="flex gap-4 group">
@@ -286,7 +290,7 @@ export default function GamePage() {
                     </div>
                   </div>
                 ))}
-
+ 
                 {comments.length === 0 && (
                   <div className="text-sm text-gray-400 py-10 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                     {t("game.no_comments")}
@@ -297,12 +301,12 @@ export default function GamePage() {
           </div>
         )}
       </div>
-
+ 
       {/* 🔴 Right Column: Related Games Sidebar */}
       {!isFullscreen && (
         <aside className="w-full lg:w-[380px] flex-shrink-0 flex flex-col gap-6">
           <h2 className="text-lg font-bold text-gray-900 px-1 border-l-4 border-indigo-600 pl-3">{t("game.related")}</h2>
-
+ 
           <div className="flex flex-col gap-4">
             {relatedGames.map(rg => (
               <div
@@ -326,7 +330,7 @@ export default function GamePage() {
                 </div>
               </div>
             ))}
-
+ 
             {/* 🔥 Sidebar Affiliate Slot */}
             <AffiliateSlot
               type="sidebar"
@@ -340,7 +344,7 @@ export default function GamePage() {
           </div>
         </aside>
       )}
-
+ 
     </div>
   )
 }
