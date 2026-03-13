@@ -35,9 +35,35 @@ function HomeContent() {
       .select("*, profiles(username)")
 
     if (error) {
-      console.warn("Join with profiles failed, falling back to simple select:", error.message)
-      const { data: simpleData } = await supabase.from("games").select("*")
-      setGames(simpleData || [])
+      console.warn("Manual join fallback triggered:", error.message)
+      const { data: gamesData, error: gamesError } = await supabase.from("games").select("*")
+      if (gamesError) {
+        console.error("Games fetch error:", gamesError)
+        setIsLoading(false)
+        return
+      }
+
+      // ユーザー情報の取得
+      const userIds = Array.from(new Set(gamesData.map(g => g.user_id).filter(Boolean)))
+      if (userIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("id, username")
+          .in("id", userIds)
+        
+        const profileMap = {}
+        profilesData?.forEach(p => {
+          profileMap[p.id] = p
+        })
+
+        const joined = gamesData.map(g => ({
+          ...g,
+          profiles: profileMap[g.user_id] || null
+        }))
+        setGames(joined)
+      } else {
+        setGames(gamesData)
+      }
     } else {
       setGames(data || [])
     }
@@ -102,6 +128,24 @@ function HomeContent() {
     setEditingGameId(null)
     const { data } = await supabase.from("games").select("*").eq("user_id", user.id)
     setMyGames(data || [])
+  }
+
+  // ── ゲーム削除（本人のみ）────────────────────────────────────
+  const deleteGame = async (gameId) => {
+    if (!user) return
+    if (!confirm("このゲームを削除してもよろしいですか？（この操作は取り消せません）")) return
+
+    const { error } = await supabase.from("games").delete().eq("id", gameId).eq("user_id", user.id)
+    
+    if (error) {
+      console.error("Delete error:", error)
+      alert("削除に失敗しました")
+    } else {
+      alert("削除しました")
+      // ステートを更新
+      setGames(prev => prev.filter(g => g.id !== gameId))
+      setMyGames(prev => prev.filter(g => g.id !== gameId))
+    }
   }
 
   // ── フィルタ＆ソート ───────────────────────────────────────
@@ -260,6 +304,13 @@ function HomeContent() {
                             onClick={() => router.push(`/game/${game.id}`)}
                           >
                             ▶️ プレイ
+                          </button>
+                          <button
+                            className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors border border-red-100 flex items-center justify-center"
+                            onClick={() => deleteGame(game.id)}
+                            title="削除する"
+                          >
+                            🗑️
                           </button>
                         </div>
                       )}

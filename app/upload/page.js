@@ -23,6 +23,52 @@ export default function Upload() {
     fetchUser()
   }, [])
 
+  // 🔹 画像リサイズユーティリティ
+  const resizeImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const targetW = 1280;
+          const targetH = 720;
+          canvas.width = targetW;
+          canvas.height = targetH;
+          const ctx = canvas.getContext("2d");
+
+          // アスペクト比を維持しながらカバー（中央切り抜き）
+          const imgRatio = img.width / img.height;
+          const targetRatio = targetW / targetH;
+          let drawW, drawH, offsetX, offsetY;
+
+          if (imgRatio > targetRatio) {
+            drawH = targetH;
+            drawW = targetH * imgRatio;
+            offsetX = (targetW - drawW) / 2;
+            offsetY = 0;
+          } else {
+            drawW = targetW;
+            drawH = targetW / imgRatio;
+            offsetX = 0;
+            offsetY = (targetH - drawH) / 2;
+          }
+
+          ctx.fillStyle = "#FFFFFF"; // 背景を白で埋める
+          ctx.fillRect(0, 0, targetW, targetH);
+          ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+          canvas.toBlob((blob) => {
+            const resizedFile = new File([blob], file.name, { type: "image/jpeg" });
+            resolve(resizedFile);
+          }, "image/jpeg", 0.8); // 0.9から0.8に下げてファイルサイズをより確実に縮小
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleUpload = async () => {
     if (!user) {
       alert("ログインしてください")
@@ -56,6 +102,29 @@ export default function Upload() {
         thumbnailUrl = data.publicUrl
       }
 
+      // 🔹 プロフィールの存在確認
+      const { data: profile, error: checkError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle(); // single() ではなく maybeSingle() を使用してエラーを避ける
+      
+      if (checkError) {
+        console.warn("Profile check error:", checkError.message);
+      }
+
+      if (!profile) {
+        console.log("Profile not found, creating one...");
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({ id: user.id, username: user.email?.split('@')[0] || "ユーザー", bio: "" });
+        
+        if (profileError) {
+          console.error("Profile creation error:", profileError.message);
+          // 外部キー制約がある場合、ここで失敗すると次のInsertも失敗します
+        }
+      }
+
       // 🔹 ゲーム投稿（user_id付き）
       const { error: insertError } = await supabase.from("games").insert([
         {
@@ -74,8 +143,8 @@ export default function Upload() {
       alert("投稿完了！")
       router.push("/")
     } catch (err) {
-      console.error(err)
-      alert("投稿に失敗しました")
+      console.error("HandleUpload Error:", err)
+      alert(`投稿に失敗しました: ${err.message || "内部エラーが発生しました"}`)
     } finally {
       setLoading(false)
     }
@@ -129,155 +198,51 @@ export default function Upload() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">サムネイル画像</label>
 
-              {/* プレビュー表示 */}
-              {(file || htmlCode) && (
-                <div className="mb-4 relative group">
-                  <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
-                    {file ? (
+                {/* プレビュー表示 */}
+                {file && (
+                  <div className="mb-4 relative group">
+                    <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
                       <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                        自動スクショ生成またはファイル選択してください
-                      </div>
-                    )}
+                    </div>
                   </div>
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (!htmlCode) {
-                          alert("HTMLコードを先に入力してください");
-                          return;
-                        }
-                        setLoading(true);
-                        // 自動スクショ生成ロジック
-                        try {
-                          const container = document.createElement('div');
-                          container.id = 'capture-container';
-                          container.style.position = 'fixed';
-                          container.style.top = '0';
-                          container.style.left = '0';
-                          container.style.width = '800px';
-                          container.style.height = '450px';
-                          container.style.zIndex = '-9999';
-                          container.style.visibility = 'hidden';
-                          document.body.appendChild(container);
+                )}
 
-                          const iframe = document.createElement('iframe');
-                          iframe.style.width = '800px';
-                          iframe.style.height = '450px';
-                          iframe.style.border = 'none';
-                          container.appendChild(iframe);
-
-                          const doc = iframe.contentDocument || iframe.contentWindow.document;
-
-                          const waitLoad = new Promise((resolve) => {
-                            iframe.onload = resolve;
-                            // もしonloadが発火しない場合のタイムアウト
-                            setTimeout(resolve, 3000);
-                          });
-
-                          doc.open();
-                          doc.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head><style>body { margin: 0; overflow: hidden; background: white; }</style></head>
-                            <body>${htmlCode}</body>
-                            </html>
-                          `);
-                          doc.close();
-
-                          await waitLoad;
-                          // 追加のレンダリング待機
-                          await new Promise(r => setTimeout(r, 1000));
-
-                          // html2canvasのエラー回避策: スタイルのクリーンアップ
-                          // (labカラーなどの未対応形式がページ全体のスタイルを壊すのを防ぐ)
-                          const allElements = doc.querySelectorAll('*');
-                          allElements.forEach((el) => {
-                            const style = window.getComputedStyle(el);
-                            // もしカラー指定に異常があれば強制的に上書きするなどの処理
-                            // ここではライブラリ側のパースエラーを全般的にキャッチできるようにする
-                          });
-
-                          // html2canvasでキャプチャ
-                          const canvas = await html2canvas(doc.body, {
-                            width: 800,
-                            height: 450,
-                            scale: 1,
-                            useCORS: true,
-                            allowTaint: true,
-                            backgroundColor: '#ffffff',
-                            onclone: (clonedDoc) => {
-                              // クローン後のドキュメントで安全な色に置換
-                              const elements = clonedDoc.querySelectorAll('*');
-                              elements.forEach((node) => {
-                                const element = node;
-                                // lab() や oklab() などの未対応形式を検出してフォールバック
-                                const styles = ['color', 'backgroundColor', 'borderColor'];
-                                styles.forEach(s => {
-                                  const val = element.style[s];
-                                  if (val && (val.includes('lab') || val.includes('oklch'))) {
-                                    element.style[s] = 'transparent';
-                                  }
-                                });
-                              });
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => document.getElementById('file-upload').click()}>
+                  <div className="space-y-1 text-center">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <div className="flex text-sm text-gray-600 justify-center">
+                      <label htmlFor="file-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                        <span>ファイルを選択またはドラッグ＆ドロップ</span>
+                        <input
+                          id="file-upload"
+                          name="file-upload"
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const selectedFile = e.target.files[0];
+                            if (selectedFile) {
+                              setLoading(true);
+                              try {
+                                const resizedFile = await resizeImage(selectedFile);
+                                setFile(resizedFile);
+                              } catch (err) {
+                                console.error("Resize Error:", err);
+                                alert("画像の処理に失敗しました。");
+                              } finally {
+                                setLoading(false);
+                              }
                             }
-                          });
-
-                          // Blobに変換
-                          canvas.toBlob((blob) => {
-                            if (blob) {
-                              const capturedFile = new File([blob], `thumb_${Date.now()}.png`, { type: "image/png" });
-                              setFile(capturedFile);
-                              alert("ゲーム画面をキャプチャしました！");
-                            } else {
-                              throw new Error("Blob conversion failed");
-                            }
-                            document.body.removeChild(container);
-                            setLoading(false);
-                          }, 'image/png');
-
-                        } catch (e) {
-                          console.error("Capture Error:", e);
-                          alert("高度なCSS（labカラー等）が含まれているため、キャプチャに一部制限がありました。ファイル選択による投稿をおすすめします。");
-                          const old = document.getElementById('capture-container');
-                          if (old) document.body.removeChild(old);
-                          setLoading(false);
-                        }
-                      }}
-                      className="flex-1 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
-                      disabled={loading}
-                    >
-                      <span>📸 画面から生成</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex-1 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
-                      onClick={() => alert("AI画像生成は今後のアップデートで提供予定です。現在は「画面から生成」をご利用ください！")}
-                      disabled={loading}
-                    >
-                      🤖 AIで生成
-                    </button>
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF 最大10MB (自動で1280x720に調整されます)</p>
                   </div>
-                </div>
-              )}
-
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => document.getElementById('file-upload').click()}>
-                <div className="space-y-1 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="file-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500">
-                      <span>ファイルを選択またはドラッグ＆ドロップ</span>
-                      <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={e => setFile(e.target.files[0])} />
-                    </label>
-                  </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF 最大10MB</p>
                 </div>
               </div>
-            </div>
 
             <div className="pt-4 mt-2 border-t border-gray-100">
               <button
@@ -317,6 +282,15 @@ export default function Upload() {
                   <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A6.0651 6.0651 0 0 0 19.02 19.818a5.9847 5.9847 0 0 0 3.9977-2.9001 6.0462 6.0462 0 0 0-.7358-7.0968z" />
                 </svg>
                 ChatGPTを開く
+              </a>
+              <a
+                href="https://gemini.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-white text-blue-600 font-bold rounded-xl shadow-sm border border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+              >
+                <img src="https://www.gstatic.com/lamda/images/favicon_v1_150160d13996594b2931.png" className="w-5 h-5" alt="Gemini" />
+                Geminiを開く
               </a>
             </div>
           </div>
