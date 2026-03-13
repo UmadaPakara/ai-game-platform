@@ -34,12 +34,31 @@ export default function GamePage() {
 
     if (error) {
       console.warn("Join with profiles failed, falling back:", error.message)
-      const { data: simpleData } = await supabase
+      const { data: simpleData, error: simpleError } = await supabase
         .from("games")
         .select("*")
         .eq("id", id)
         .single()
-      if (simpleData) setGame(simpleData)
+      
+      if (simpleError) {
+        console.error("Game fetch error:", simpleError)
+        return
+      }
+
+      if (simpleData?.user_id) {
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", simpleData.user_id)
+          .single()
+        
+        if (profileError) {
+          console.error("Profile fetch error during fallback:", profileError);
+        }
+        setGame({ ...simpleData, profiles: profileData || null })
+      } else {
+        setGame(simpleData)
+      }
     } else {
       setGame(data)
     }
@@ -53,12 +72,19 @@ export default function GamePage() {
       .limit(6)
 
     if (error) {
+      console.warn("Related games join failed, falling back")
       const { data: simpleData } = await supabase
         .from("games")
         .select("*")
         .neq("id", id)
         .limit(6)
-      setRelatedGames(simpleData || [])
+      
+      const gamesWithProfiles = await Promise.all((simpleData || []).map(async (g) => {
+        if (!g.user_id) return { ...g, profiles: null }
+        const { data: p } = await supabase.from("profiles").select("username").eq("id", g.user_id).single()
+        return { ...g, profiles: p || null }
+      }))
+      setRelatedGames(gamesWithProfiles)
     } else {
       setRelatedGames(data || [])
     }

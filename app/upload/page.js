@@ -95,11 +95,15 @@ export default function Upload() {
 
         if (uploadError) throw uploadError
 
-        const { data } = supabase.storage
+        const { data: urlData } = supabase.storage
           .from("thumbnails")
           .getPublicUrl(fileName)
 
-        thumbnailUrl = data.publicUrl
+        if (!urlData?.publicUrl) {
+          throw new Error("サムネイルのURL取得に失敗しました。")
+        }
+        thumbnailUrl = urlData.publicUrl
+        console.log("Upload Success. Thumbnail URL:", thumbnailUrl)
       }
 
       // 🔹 プロフィールの存在確認
