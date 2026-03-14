@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 import AuthButton from "./AuthButton";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-export default function Header() {
+type HeaderProps = {
+    onMenuToggle?: () => void;
+};
+
+export default function Header({ onMenuToggle }: HeaderProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
     const { language, setLanguage, t } = useLanguage();
@@ -24,7 +28,10 @@ export default function Header() {
         <header className="fixed top-0 left-0 right-0 h-16 bg-black/40 backdrop-blur-md border-b border-gray-800/50 z-50 flex items-center justify-between px-4">
             {/* Left: Logo and Menu */}
             <div className="flex items-center gap-4">
-                <button className="p-2 hover:bg-white/10 rounded-full md:hidden">
+                <button 
+                    onClick={onMenuToggle}
+                    className="p-2 hover:bg-white/10 rounded-full md:hidden"
+                >
                     <Menu className="w-6 h-6 text-gray-300" />
                 </button>
                 <div

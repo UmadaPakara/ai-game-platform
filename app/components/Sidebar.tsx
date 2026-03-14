@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Trophy, Heart, User, PlusCircle, Star, TrendingUp, Globe, BookOpen } from "lucide-react";
+import { Home, Trophy, Heart, User, PlusCircle, Star, TrendingUp, Globe, BookOpen, X } from "lucide-react";
 import AffiliateSlot from "./AffiliateSlot";
 import AffiliateCarousel from "./AffiliateCarousel";
 import { AFFILIATE_ADS, getWeeklyTrendingAds } from "@/lib/affiliate";
@@ -8,9 +8,10 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 type SidebarProps = {
     currentTab: string;
     onTabChange: (tab: string) => void;
+    isOpenMobile?: boolean;
 };
 
-export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
+export default function Sidebar({ currentTab, onTabChange, isOpenMobile }: SidebarProps) {
     const { language, setLanguage, t } = useLanguage();
     
     const getButtonClass = (isActive: boolean) =>
@@ -20,8 +21,17 @@ export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
         }`;
 
     return (
-        <aside className="fixed left-0 top-16 w-60 h-[calc(100vh-4rem)] bg-black/40 backdrop-blur-md border-r border-gray-800/50 overflow-y-auto hidden md:block z-40 transition-all duration-300">
+        <aside className={`fixed left-0 top-16 w-60 h-[calc(100vh-4rem)] bg-black/90 md:bg-black/40 backdrop-blur-md border-r border-gray-800/50 overflow-y-auto z-40 transition-transform duration-300 ${isOpenMobile ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
             <div className="py-4 px-3 flex flex-col gap-6">
+                {/* Mobile Close Button */}
+                <div className="md:hidden flex justify-end px-2">
+                    <button 
+                        onClick={() => onTabChange(currentTab)} 
+                        className="p-2 bg-white/5 rounded-full text-gray-400 hover:text-white hover:bg-white/10"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
                 {/* Main Navigation */}
                 <div className="space-y-1">
                     <Link href="/?tab=home" onClick={() => onTabChange("home")} className={getButtonClass(currentTab === "home")}>

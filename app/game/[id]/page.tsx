@@ -230,24 +230,25 @@ export default function GamePage() {
               ${game.html_code}
             `}
             className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-full'} border-none`}
+            sandbox="allow-scripts allow-pointer-lock"
             allowFullScreen
           />
         </div>
  
         {/* Info Area */}
         {!isFullscreen && (
-          <div className="mt-5 flex flex-col gap-4">
-            <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
+          <div className="mt-5 flex flex-col gap-4 bg-black/40 p-6 rounded-2xl border border-gray-800/50 shadow-[0_0_20px_rgba(0,0,0,0.3)] backdrop-blur-md">
+            <h1 className="text-2xl font-extrabold text-gray-100 leading-tight drop-shadow-md">
               {game.title}
             </h1>
  
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-800/50">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg border border-indigo-50 shadow-sm overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-purple-900/40 text-purple-300 flex items-center justify-center font-bold text-lg border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.3)] overflow-hidden">
                   {(game.profiles?.username || game.title).charAt(0)}
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-gray-900 leading-none">{game.profiles?.username || t("common.unknown_author")}</span>
+                  <span className="font-bold text-gray-200 leading-none">{game.profiles?.username || t("common.unknown_author")}</span>
                   <span className="text-[11px] text-gray-400 mt-1">
                     👀 {t("common.views", { count: game.views || 0 })}
                   </span>
@@ -257,7 +258,7 @@ export default function GamePage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleLike}
-                  className="flex items-center gap-3 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold rounded-full transition-all active:scale-95 shadow-sm"
+                  className="flex items-center gap-3 px-6 py-2 bg-white/5 hover:bg-white/10 text-gray-100 font-bold rounded-full transition-all active:scale-95 border border-gray-700/50 shadow-sm"
                 >
                   <span className="text-lg leading-none">❤️</span>
                   <span>{game.likes || 0}</span>
@@ -266,8 +267,8 @@ export default function GamePage() {
             </div>
  
             {/* Description Box */}
-            <div className="bg-gray-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed border border-gray-100">
-              <span className="font-bold mb-1.5 block text-gray-900">
+            <div className="bg-white/5 rounded-2xl p-4 text-sm text-gray-300 leading-relaxed border border-gray-700/50">
+              <span className="font-bold mb-1.5 block text-gray-100">
                 {t("game.published_at", { date: new Date(game.created_at || "2020-01-01").toLocaleDateString(language === "ja" ? 'ja-JP' : 'en-US') })}
               </span>
               <p className="whitespace-pre-wrap">{game.description || (language === "ja" ? "このゲームの説明はありません。" : "No description for this game.")}</p>
@@ -285,8 +286,8 @@ export default function GamePage() {
             />
  
             {/* Comments Area */}
-            <div className="mt-4">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <div className="mt-4 border-t border-gray-800/50 pt-6">
+              <h2 className="text-xl font-bold text-gray-100 mb-6 flex items-center gap-2">
                 <span>{t("game.comments")}</span>
                 <span className="text-gray-400 font-medium">{comments.length}</span>
               </h2>
@@ -294,23 +295,23 @@ export default function GamePage() {
               <div className="flex flex-col gap-6">
                 {comments.map(c => (
                   <div key={c.id} className="flex gap-4 group">
-                    <div className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center font-bold text-gray-400 border border-gray-50">
+                    <div className="w-10 h-10 rounded-full bg-purple-900/20 flex-shrink-0 flex items-center justify-center font-bold text-purple-400 border border-purple-500/20 shadow-inner">
                       {(c.user_id || "U").charAt(0)}
                     </div>
                     <div className="flex flex-col flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-bold text-gray-900">{language === "ja" ? "匿名ユーザー" : "Anonymous User"}</span>
-                        <span className="text-[11px] text-gray-400">
+                        <span className="text-sm font-bold text-gray-200">{language === "ja" ? "匿名ユーザー" : "Anonymous User"}</span>
+                        <span className="text-[11px] text-gray-500">
                           {new Date(c.created_at).toLocaleDateString(language === "ja" ? "ja-JP" : "en-US")}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-800 leading-relaxed">{c.content}</p>
+                      <p className="text-sm text-gray-300 leading-relaxed">{c.content}</p>
                     </div>
                   </div>
                 ))}
  
                 {comments.length === 0 && (
-                  <div className="text-sm text-gray-400 py-10 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                  <div className="text-sm text-gray-400 py-10 text-center bg-white/5 rounded-2xl border border-dashed border-gray-700/50">
                     {t("game.no_comments")}
                   </div>
                 )}
@@ -322,29 +323,29 @@ export default function GamePage() {
  
       {/* 🔴 Right Column: Related Games Sidebar */}
       {!isFullscreen && (
-        <aside className="w-full lg:w-[380px] flex-shrink-0 flex flex-col gap-6">
-          <h2 className="text-lg font-bold text-gray-900 px-1 border-l-4 border-indigo-600 pl-3">{t("game.related")}</h2>
+        <aside className="w-full lg:w-[380px] flex-shrink-0 flex flex-col gap-6 bg-black/40 p-6 rounded-2xl border border-gray-800/50 shadow-[0_0_20px_rgba(0,0,0,0.3)] backdrop-blur-md">
+          <h2 className="text-lg font-bold text-gray-100 px-1 border-l-4 border-purple-500 pl-3 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">{t("game.related")}</h2>
  
           <div className="flex flex-col gap-4">
             {relatedGames.map(rg => (
               <div
                 key={rg.id}
-                className="flex gap-3 group cursor-pointer"
+                className="flex gap-3 group cursor-pointer p-2 rounded-xl hover:bg-white/5 transition-colors"
                 onClick={() => router.push(`/game/${rg.id}`)}
               >
-                <div className="w-40 h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+                <div className="w-40 h-24 bg-black/50 border border-gray-700/50 rounded-lg overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all">
                   {rg.thumbnail ? (
                     <img src={rg.thumbnail} alt={rg.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs italic">No Image</div>
+                    <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs italic">No Image</div>
                   )}
                 </div>
                 <div className="flex-1 flex flex-col py-1">
-                  <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+                  <h3 className="text-sm font-bold text-gray-200 line-clamp-2 leading-tight group-hover:text-purple-400 transition-colors">
                     {rg.title}
                   </h3>
-                  <span className="text-[11px] text-gray-500 mt-1.5">{rg.profiles?.username || t("common.unknown_author")}</span>
-                  <span className="text-[11px] text-gray-400 mt-0.5">{t("common.views", { count: rg.views || 0 })}</span>
+                  <span className="text-[11px] text-gray-400 mt-1.5">{rg.profiles?.username || t("common.unknown_author")}</span>
+                  <span className="text-[11px] text-gray-500 mt-0.5">{t("common.views", { count: rg.views || 0 })}</span>
                 </div>
               </div>
             ))}
