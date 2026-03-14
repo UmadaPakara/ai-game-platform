@@ -7,6 +7,9 @@ import GameCard from "./components/GameCard"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
 import { Game, Profile } from "@/types"
 import { User } from "@supabase/supabase-js"
+import { Gamepad2, Trophy, Lock } from "lucide-react"
+
+import AILoadingSpinner from "./components/AILoadingSpinner"
 
 function HomeContent() {
   const router = useRouter()
@@ -204,12 +207,10 @@ function HomeContent() {
 
         {/* ゲームグリッド */}
         {(tab === "home" || tab === "favorites") && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-10">
+          <div className={isLoading ? "w-full" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-10"}>
             {isLoading ? (
-              // 読み込み中のスケルトン
-              Array.from({ length: 8 }).map((_, i) => (
-                <GameCard key={i} isLoading={true} />
-              ))
+              // AI読み込み中のスピナー
+              <AILoadingSpinner />
             ) : (
               // 実際のゲームリスト
               filtered.map(game => (
@@ -222,7 +223,7 @@ function HomeContent() {
         {/* ゲームなし */}
         {!isLoading && (tab === "home" || tab === "favorites") && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-black/20 rounded-2xl border border-gray-800/50 backdrop-blur-sm">
-            <div className="text-6xl mb-4 grayscale opacity-20">🎮</div>
+            <Gamepad2 className="w-16 h-16 mb-4 text-gray-600 opacity-50" />
             <h3 className="text-xl font-bold mb-2 text-purple-300">
               {language === "ja" ? "ゲームが見つかりません" : "No games found"}
             </h3>
@@ -259,8 +260,9 @@ function HomeContent() {
                   </button>
                 </div>
 
-                <h3 className="text-2xl font-bold text-gray-100 mb-6 drop-shadow-md">
-                  🎮 {language === "ja" ? "自分の投稿" : "My Uploads"}
+                <h3 className="text-2xl font-bold text-gray-100 mb-6 drop-shadow-md flex items-center gap-2">
+                  <Gamepad2 className="w-7 h-7 text-purple-400" /> 
+                  {language === "ja" ? "自分の投稿" : "My Uploads"}
                 </h3>
 
                 {myGames.length === 0 && (
@@ -384,9 +386,9 @@ function HomeContent() {
 
         {/* プロフィール未ログイン */}
         {tab === "profile" && !user && (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-            <div className="text-6xl mb-4">🔒</div>
-            <h3 className="text-xl font-semibold mb-2">
+          <div className="flex flex-col items-center justify-center py-20 text-gray-500 bg-black/20 rounded-2xl border border-gray-800/50 backdrop-blur-sm">
+            <Lock className="w-16 h-16 mb-4 text-gray-600 opacity-50" />
+            <h3 className="text-xl font-semibold mb-2 text-purple-300">
               {language === "ja" ? "ログインが必要です" : "Login Required"}
             </h3>
             <p>

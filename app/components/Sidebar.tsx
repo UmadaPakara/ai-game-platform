@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { Home, Trophy, Heart, User, PlusCircle, Star, TrendingUp } from "lucide-react";
+import { Home, Trophy, Heart, User, PlusCircle, Star, TrendingUp, Globe, BookOpen } from "lucide-react";
 import AffiliateSlot from "./AffiliateSlot";
 import AffiliateCarousel from "./AffiliateCarousel";
 import { AFFILIATE_ADS, getWeeklyTrendingAds } from "@/lib/affiliate";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import { Globe } from "lucide-react";
 
 type SidebarProps = {
     currentTab: string;
@@ -65,6 +64,10 @@ export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
                         <Link href="/?tab=profile" onClick={() => onTabChange("profile")} className={getButtonClass(currentTab === "profile")}>
                             <User className={`w-5 h-5 ${currentTab === "profile" ? "text-indigo-600" : "text-gray-500"}`} />
                             <span>{t("common.profile")}</span>
+                        </Link>
+                        <Link href="/about" onClick={() => onTabChange("about")} className={getButtonClass(currentTab === "about")}>
+                            <BookOpen className={`w-5 h-5 ${currentTab === "about" ? "text-indigo-600" : "text-gray-500"}`} />
+                            <span>{language === "ja" ? "ガイド・使い方" : "Guide"}</span>
                         </Link>
                     </div>
                 </div>

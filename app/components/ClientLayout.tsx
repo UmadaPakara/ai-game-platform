@@ -13,8 +13,9 @@ export default function ClientLayout({ children }: { readonly children: React.Re
     // Derive active tab purely from URL — no local state needed
     const currentTab = pathname === "/ranking" ? "ranking"
         : pathname === "/upload" ? "upload"
-            : pathname.startsWith("/profile") ? "profile"
-                : tabParam || "home";
+            : pathname === "/about" ? "about"
+                : pathname.startsWith("/profile") ? "profile"
+                    : tabParam || "home";
 
     return (
         <div className="flex min-h-screen bg-transparent pt-16 font-sans">

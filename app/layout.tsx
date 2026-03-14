@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+import ParticleBackground from "./components/ParticleBackground";
 
 export const metadata: Metadata = {
   title: "GameTube - AI Game Platform",
@@ -37,12 +38,14 @@ export default function RootLayout({
       >
         {/* Fixed Background Image */}
         <div 
-          className="fixed inset-0 z-[-1] bg-cover bg-center bg-no-repeat"
+          className="fixed inset-0 z-[-2] bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/images/ai_bg_purple.png')" }}
         >
           {/* Dark Overlay for Readability */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
         </div>
+        
+        <ParticleBackground />
 
         <LanguageProvider>
           <Suspense fallback={null}>

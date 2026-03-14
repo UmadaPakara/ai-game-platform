@@ -278,33 +278,35 @@ export default function Upload() {
  
           {/* 右：AIリンク */}
           <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6">
-            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-2xl border border-indigo-100 shadow-sm">
-              <h2 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
-                <span>🤖</span> {t("upload.ai_help")}
+            <div className="bg-black/40 p-6 rounded-2xl border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)] backdrop-blur-md">
+              <h2 className="text-lg font-bold text-gray-100 mb-4 flex items-center gap-2">
+                <span className="text-xl">🤖</span> {t("upload.ai_help")}
               </h2>
-              <p className="text-sm text-indigo-800/80 mb-6 leading-relaxed">
+              <p className="text-sm text-gray-400 mb-6 leading-relaxed">
                 {t("upload.ai_links")}
               </p>
-              <a
-                href="https://chat.openai.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 bg-white text-indigo-600 font-bold rounded-xl shadow-sm border border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A6.0651 6.0651 0 0 0 19.02 19.818a5.9847 5.9847 0 0 0 3.9977-2.9001 6.0462 6.0462 0 0 0-.7358-7.0968z" />
-                </svg>
-                {t("upload.subtitle")} {language === "ja" ? "ChatGPTを開く" : "Open ChatGPT"}
-              </a>
-              <a
-                href="https://gemini.google.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 bg-white text-blue-600 font-bold rounded-xl shadow-sm border border-blue-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
-              >
-                <img src="https://www.gstatic.com/lamda/images/favicon_v1_150160d13996594b2931.png" className="w-5 h-5" alt="Gemini" />
-                {language === "ja" ? "Geminiを開く" : "Open Gemini"}
-              </a>
+              <div className="space-y-3">
+                <a
+                  href="https://chat.openai.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 text-gray-200 font-bold rounded-xl shadow-sm border border-gray-700/50 hover:border-purple-500/50 hover:bg-purple-600/20 hover:text-white transition-all shadow-[0_0_10px_rgba(0,0,0,0.2)]"
+                >
+                  <svg className="w-5 h-5 text-current" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A6.0651 6.0651 0 0 0 19.02 19.818a5.9847 5.9847 0 0 0 3.9977-2.9001 6.0462 6.0462 0 0 0-.7358-7.0968z" />
+                  </svg>
+                  {language === "ja" ? "ChatGPTを開く" : "Open ChatGPT"}
+                </a>
+                <a
+                  href="https://gemini.google.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 text-gray-200 font-bold rounded-xl shadow-sm border border-gray-700/50 hover:border-blue-500/50 hover:bg-blue-600/20 hover:text-white transition-all shadow-[0_0_10px_rgba(0,0,0,0.2)]"
+                >
+                  <img src="https://www.gstatic.com/lamda/images/favicon_v1_150160d13996594b2931.png" className="w-5 h-5" alt="Gemini" />
+                  {language === "ja" ? "Geminiを開く" : "Open Gemini"}
+                </a>
+              </div>
             </div>
           </div>
  

@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { Game } from "@/types"
- 
+import { Trophy, Flame, Calendar, Award, Sparkles, Eye, Heart } from "lucide-react"
+
 export default function Ranking() {
   const [games, setGames] = useState<Game[]>([])
   const [search, setSearch] = useState<string>("")
@@ -96,32 +97,35 @@ export default function Ranking() {
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
  
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <span className="text-3xl">🏆</span> ランキング
+          <h1 className="text-3xl font-bold text-gray-100 flex items-center gap-3 drop-shadow-md">
+            <Trophy className="w-8 h-8 text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]" /> ランキング
           </h1>
  
           {/* 🔥 検索＋ソート */}
           <div className="flex gap-3">
             <div className="flex-1 sm:flex-none relative">
               <input
-                className="w-full sm:w-64 pl-4 pr-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm shadow-sm"
+                className="w-full sm:w-64 pl-4 pr-4 py-2 bg-black/40 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm text-white placeholder-gray-400 shadow-[0_0_15px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all"
                 placeholder="検索..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
             </div>
  
-            <select
-              className="pl-3 pr-8 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium shadow-sm appearance-none cursor-pointer"
-              value={sort}
-              onChange={e => setSort(e.target.value)}
-            >
-              <option value="all">🏆 総合</option>
-              <option value="trend">🔥 24時間</option>
-              <option value="daily">💎 デイリー</option>
-              <option value="weekly">🏅 週間</option>
-              <option value="new">🆕 新着</option>
-            </select>
+            <div className="relative">
+                <select
+                className="pl-9 pr-8 py-2 bg-black/40 border border-gray-700/50 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm font-medium text-gray-200 shadow-[0_0_15px_rgba(0,0,0,0.3)] backdrop-blur-sm appearance-none cursor-pointer hover:bg-black/60 transition-colors"
+                value={sort}
+                onChange={e => setSort(e.target.value)}
+                >
+                <option value="all">👑 総合</option>
+                <option value="trend">🔥 24時間</option>
+                <option value="daily">💎 デイリー</option>
+                <option value="weekly">🏅 週間</option>
+                <option value="new">✨ 新着</option>
+                </select>
+                <Flame className="w-4 h-4 text-purple-400 absolute left-3 top-2.5 pointer-events-none" />
+            </div>
           </div>
         </div>
  
@@ -129,32 +133,35 @@ export default function Ranking() {
           {filtered.map((game, index) => (
             <div
               key={game.id}
-              className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer group"
+              className="flex flex-col sm:flex-row gap-4 bg-black/40 p-4 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.3)] border border-gray-800/50 hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] transition-all cursor-pointer group backdrop-blur-md"
               onClick={() => router.push(`/game/${game.id}`)}
             >
-              <div className="flex items-center justify-center w-12 flex-shrink-0">
-                <span className={`text-2xl font-bold ${index < 3 ? 'text-indigo-600' : 'text-gray-400'}`}>
-                  #{index + 1}
+              <div className="flex flex-col items-center justify-center w-12 flex-shrink-0">
+                {index === 0 && <Award className="w-8 h-8 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)] mb-1" />}
+                {index === 1 && <Award className="w-7 h-7 text-gray-300 drop-shadow-[0_0_8px_rgba(209,213,219,0.8)] mb-1" />}
+                {index === 2 && <Award className="w-6 h-6 text-amber-600 drop-shadow-[0_0_8px_rgba(217,119,6,0.8)] mb-1" />}
+                <span className={`text-xl font-bold ${index < 3 ? 'text-purple-400' : 'text-gray-500'}`}>
+                  {index + 1}
                 </span>
               </div>
  
-              <div className="w-full sm:w-48 aspect-video bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+              <div className="w-full sm:w-48 aspect-video bg-white/5 border border-gray-700/50 rounded-lg overflow-hidden flex-shrink-0 relative group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all">
                 {game.thumbnail ? (
                   <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-medium">No Image</div>
+                  <div className="w-full h-full flex items-center justify-center text-gray-500 bg-black/40 backdrop-blur-sm text-sm font-medium">No Image</div>
                 )}
               </div>
  
               <div className="flex-1 flex flex-col justify-center">
-                <h2 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors mb-2 line-clamp-2">
+                <h2 className="text-xl font-bold text-gray-100 group-hover:text-purple-400 transition-colors mb-2 line-clamp-2">
                   {game.title}
                 </h2>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                  <span className="flex items-center gap-1">👀 {game.views || 0}</span>
-                  <span className="flex items-center gap-1">❤️ {game.likes || 0}</span>
-                  <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-md font-medium text-xs border border-indigo-100">
-                    ⭐ スコア: {(game.likes || 0) * 3 + (game.views || 0)}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                  <span className="flex items-center gap-1.5"><Eye className="w-4 h-4" /> {game.views || 0}</span>
+                  <span className="flex items-center gap-1.5"><Heart className="w-4 h-4" /> {game.likes || 0}</span>
+                  <span className="px-2.5 py-1 bg-purple-900/40 text-purple-300 rounded-md font-medium text-xs border border-purple-500/30 flex items-center gap-1 shadow-inner">
+                    <Sparkles className="w-3.5 h-3.5" /> スコア: {(game.likes || 0) * 3 + (game.views || 0)}
                   </span>
                 </div>
               </div>
@@ -162,7 +169,7 @@ export default function Ranking() {
           ))}
  
           {filtered.length === 0 && (
-            <div className="text-center py-20 text-gray-500 bg-white rounded-xl border border-gray-100">
+            <div className="text-center py-20 text-gray-400 bg-black/20 rounded-xl border border-gray-800/50 backdrop-blur-sm">
               条件に一致するゲームがありません
             </div>
           )}
