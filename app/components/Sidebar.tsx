@@ -32,8 +32,8 @@ export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
                         <Trophy className={`w-5 h-5 ${currentTab === "ranking" ? "text-purple-400" : "text-gray-400"}`} />
                         <span>{t("common.ranking")}</span>
                     </Link>
-                    <Link href="/upload" className={`flex items-center gap-4 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${currentTab === "upload" ? "bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] border border-purple-400" : "bg-purple-600/70 hover:bg-purple-500 text-white shadow-[0_0_10px_rgba(168,85,247,0.3)] border border-purple-500/50 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]"}`}>
-                        <PlusCircle className="w-5 h-5 text-white" />
+                    <Link href="/upload" className={getButtonClass(currentTab === "upload")}>
+                        <PlusCircle className={`w-5 h-5 ${currentTab === "upload" ? "text-purple-400" : "text-gray-400"}`} />
                         <span>{t("common.upload")}</span>
                     </Link>
                 </div>
