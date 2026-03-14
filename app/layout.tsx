@@ -33,8 +33,17 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 min-h-screen font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-gray-100 min-h-screen font-sans relative`}
       >
+        {/* Fixed Background Image */}
+        <div 
+          className="fixed inset-0 z-[-1] bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/ai_bg_purple.png')" }}
+        >
+          {/* Dark Overlay for Readability */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+        </div>
+
         <LanguageProvider>
           <Suspense fallback={null}>
             <ClientLayout>{children}</ClientLayout>

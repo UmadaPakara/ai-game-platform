@@ -16,25 +16,25 @@ export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
     
     const getButtonClass = (isActive: boolean) =>
         `flex items-center gap-4 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${isActive
-            ? "bg-indigo-50 text-indigo-700 font-bold shadow-sm"
-            : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
+            ? "bg-purple-600/30 text-purple-200 font-bold shadow-[0_0_15px_rgba(168,85,247,0.3)] border border-purple-500/30"
+            : "hover:bg-white/10 text-gray-300 hover:text-white"
         }`;
 
     return (
-        <aside className="fixed left-0 top-16 w-60 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 overflow-y-auto hidden md:block z-40 transition-all duration-300">
+        <aside className="fixed left-0 top-16 w-60 h-[calc(100vh-4rem)] bg-black/40 backdrop-blur-md border-r border-gray-800/50 overflow-y-auto hidden md:block z-40 transition-all duration-300">
             <div className="py-4 px-3 flex flex-col gap-6">
                 {/* Main Navigation */}
                 <div className="space-y-1">
                     <Link href="/?tab=home" onClick={() => onTabChange("home")} className={getButtonClass(currentTab === "home")}>
-                        <Home className={`w-5 h-5 ${currentTab === "home" ? "text-indigo-600" : "text-gray-500"}`} />
+                        <Home className={`w-5 h-5 ${currentTab === "home" ? "text-purple-400" : "text-gray-400"}`} />
                         <span>{t("common.home")}</span>
                     </Link>
                     <Link href="/ranking" className={getButtonClass(currentTab === "ranking")}>
-                        <Trophy className={`w-5 h-5 ${currentTab === "ranking" ? "text-indigo-600" : "text-gray-500"}`} />
+                        <Trophy className={`w-5 h-5 ${currentTab === "ranking" ? "text-purple-400" : "text-gray-400"}`} />
                         <span>{t("common.ranking")}</span>
                     </Link>
                     <Link href="/upload" className={getButtonClass(currentTab === "upload")}>
-                        <PlusCircle className={`w-5 h-5 ${currentTab === "upload" ? "text-indigo-600" : "text-gray-500"}`} />
+                        <PlusCircle className={`w-5 h-5 ${currentTab === "upload" ? "text-purple-400" : "text-gray-400"}`} />
                         <span>{t("common.upload")}</span>
                     </Link>
                 </div>
@@ -43,14 +43,14 @@ export default function Sidebar({ currentTab, onTabChange }: SidebarProps) {
                 <div className="px-3">
                     <button 
                         onClick={() => setLanguage(language === "ja" ? "en" : "ja")}
-                        className="flex items-center gap-2 w-full px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-xs text-gray-600 transition-colors border border-gray-200"
+                        className="flex items-center gap-2 w-full px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-gray-300 transition-colors border border-gray-700/50"
                     >
                         <Globe className="w-3.5 h-3.5" />
                         <span className="font-bold">{language === "ja" ? "English" : "日本語"}</span>
                     </button>
                 </div>
 
-                <hr className="border-gray-100" />
+                <hr className="border-gray-800/50" />
 
                 {/* Library Section */}
                 <div>

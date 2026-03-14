@@ -189,13 +189,13 @@ function HomeContent() {
           <div className="flex gap-3 mb-8 overflow-x-auto pb-2">
             <button
               onClick={() => setSort("new")}
-              className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${sort === "new" ? "bg-gray-900 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"}`}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${sort === "new" ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.5)] border border-purple-500" : "bg-white/10 hover:bg-white/20 text-gray-300 border border-gray-700/50"}`}
             >
               {language === "ja" ? "新着順" : "Newest"}
             </button>
             <button
               onClick={() => setSort("likes")}
-              className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${sort === "likes" ? "bg-gray-900 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"}`}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${sort === "likes" ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.5)] border border-purple-500" : "bg-white/10 hover:bg-white/20 text-gray-300 border border-gray-700/50"}`}
             >
               {language === "ja" ? "人気順" : "Most Liked"}
             </button>
@@ -221,12 +221,12 @@ function HomeContent() {
 
         {/* ゲームなし */}
         {!isLoading && (tab === "home" || tab === "favorites") && filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-black/20 rounded-2xl border border-gray-800/50 backdrop-blur-sm">
             <div className="text-6xl mb-4 grayscale opacity-20">🎮</div>
-            <h3 className="text-xl font-bold mb-2 text-gray-600">
+            <h3 className="text-xl font-bold mb-2 text-purple-300">
               {language === "ja" ? "ゲームが見つかりません" : "No games found"}
             </h3>
-            <p className="text-sm">
+            <p className="text-sm text-gray-400">
               {q ? (language === "ja" ? `"${q}" に一致する結果はありませんでした。` : `No results for "${q}".`) :
                 tab === "favorites" ? (language === "ja" ? "お気に入りのゲームがまだありません。" : "No favorite games yet.") : 
                 (language === "ja" ? "投稿されたゲームがまだありません。" : "No games uploaded yet.")}
@@ -236,35 +236,35 @@ function HomeContent() {
 
         {/* プロフィールタブ */}
         {tab === "profile" && profile && (
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl p-6 sm:p-10 shadow-sm border border-gray-100">
+          <div className="max-w-4xl mx-auto bg-black/50 backdrop-blur-lg rounded-2xl p-6 sm:p-10 shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-purple-500/20 text-white">
             {!isEditing ? (
               <>
-                <div className="flex items-start justify-between border-b border-gray-100 pb-8 mb-8">
+                <div className="flex items-start justify-between border-b border-gray-800/50 pb-8 mb-8">
                   <div className="flex items-center gap-6">
-                    <div className="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-4xl font-bold">
+                    <div className="w-24 h-24 bg-purple-900/40 text-purple-300 border border-purple-500/30 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner">
                       {profile.username?.charAt(0) || "U"}
                     </div>
                     <div>
-                      <h2 className="text-3xl font-bold text-gray-900 mb-2">{profile.username}</h2>
-                      <p className="text-gray-600 whitespace-pre-wrap">
+                      <h2 className="text-3xl font-bold text-gray-100 mb-2">{profile.username}</h2>
+                      <p className="text-gray-400 whitespace-pre-wrap">
                         {profile.bio || (language === "ja" ? "自己紹介がまだありません。" : "No bio yet.")}
                       </p>
                     </div>
                   </div>
                   <button
-                    className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium rounded-lg transition-colors"
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-colors border border-gray-600/50"
                     onClick={() => setIsEditing(true)}
                   >
                     {language === "ja" ? "プロフィールを編集" : "Edit Profile"}
                   </button>
                 </div>
 
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                <h3 className="text-2xl font-bold text-gray-100 mb-6 drop-shadow-md">
                   🎮 {language === "ja" ? "自分の投稿" : "My Uploads"}
                 </h3>
 
                 {myGames.length === 0 && (
-                  <div className="bg-gray-50 rounded-xl p-8 text-center text-gray-500 border border-gray-100">
+                  <div className="bg-black/30 rounded-xl p-8 text-center text-gray-400 border border-gray-800/50">
                     {language === "ja" 
                       ? "まだ投稿がありません。右上の「投稿する」から新しいゲームを作ってみましょう！" 
                       : "No uploads yet. Create your first game from 'Upload'!"}
@@ -273,20 +273,20 @@ function HomeContent() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {myGames.map(game => (
-                    <div key={game.id} className="bg-white border text-left border-gray-200 rounded-xl p-5 hover:border-indigo-300 transition-colors shadow-sm">
+                    <div key={game.id} className="bg-black/30 border text-left border-gray-800/50 rounded-xl p-5 hover:border-purple-500/50 transition-colors shadow-sm">
                       <div className="flex justify-between items-start mb-4">
-                        <h4 className="text-lg font-bold text-gray-900">{game.title}</h4>
-                        <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">ID: {game.id.split('-')[0]}</span>
+                        <h4 className="text-lg font-bold text-gray-100">{game.title}</h4>
+                        <span className="bg-white/10 text-gray-300 text-xs px-2 py-1 rounded-md font-medium border border-gray-700/50">ID: {game.id.split('-')[0]}</span>
                       </div>
 
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-5">
+                      <div className="flex items-center gap-4 text-sm text-gray-400 mb-5">
                         <span>👀 {game.views || 0}</span>
                         <span>❤️ {game.likes || 0}</span>
                       </div>
 
                       {editingGameId === game.id ? (
-                        <div className="mt-4 border-t border-gray-100 pt-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="mt-4 border-t border-gray-800/50 pt-4">
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
                              {language === "ja" ? "HTMLコードの編集" : "Edit HTML Code"}
                           </label>
                           <textarea
@@ -302,7 +302,7 @@ function HomeContent() {
                                {t("common.confirm")}
                              </button>
                              <button
-                               className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors"
+                               className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-200 font-medium rounded-lg transition-colors border border-gray-600/50"
                                onClick={() => setEditingGameId(null)}
                              >
                                {t("common.cancel")}
@@ -312,19 +312,19 @@ function HomeContent() {
                       ) : (
                         <div className="flex gap-2">
                           <button
-                            className="flex-1 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                            className="flex-1 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
                             onClick={() => { setEditingGameId(game.id); setEditHtml(game.html_code) }}
                           >
                             ✏️ {language === "ja" ? "HTML編集" : "Edit HTML"}
                           </button>
                           <button
-                            className="flex-1 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition-colors border border-gray-200 flex items-center justify-center gap-2"
+                            className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-medium rounded-lg transition-colors border border-gray-700/50 flex items-center justify-center gap-2"
                             onClick={() => router.push(`/game/${game.id}`)}
                           >
                             ▶️ {t("game.play")}
                           </button>
                           <button
-                            className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors border border-red-100 flex items-center justify-center"
+                            className="px-3 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-medium rounded-lg transition-colors border border-red-800/50 flex items-center justify-center"
                             onClick={() => deleteGame(game.id)}
                             title={t("common.delete")}
                           >
@@ -338,39 +338,39 @@ function HomeContent() {
               </>
             ) : (
               <div className="max-w-xl mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-6">
+                <h2 className="text-2xl font-bold mb-6 text-gray-100">
                   {language === "ja" ? "プロフィール編集" : "Edit Profile"}
                 </h2>
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === "ja" ? "ユーザー名" : "Username"}
                     </label>
                     <input
-                      className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                      className="w-full px-4 py-2 bg-black/40 border border-gray-700/50 text-white rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                       value={editName}
                       onChange={e => setEditName(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === "ja" ? "自己紹介" : "Bio"}
                     </label>
                     <textarea
-                      className="w-full px-4 py-2 h-32 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                      className="w-full px-4 py-2 h-32 bg-black/40 border border-gray-700/50 text-white rounded-lg focus:ring-2 focus:ring-purple-500 outline-none resize-none"
                       value={editBio}
                       onChange={e => setEditBio(e.target.value)}
                     />
                   </div>
                   <div className="flex gap-3 pt-4">
                     <button
-                      className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+                      className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_10px_purple] font-medium rounded-lg transition-colors"
                       onClick={updateProfile}
                     >
                       {t("common.confirm")}
                     </button>
                     <button
-                      className="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors"
+                      className="flex-1 py-2.5 bg-white/10 hover:bg-white/20 text-gray-300 font-medium rounded-lg transition-colors border border-gray-600/50"
                       onClick={() => setIsEditing(false)}
                     >
                       {t("common.cancel")}

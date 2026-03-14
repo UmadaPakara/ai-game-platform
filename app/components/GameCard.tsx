@@ -20,12 +20,12 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
     if (isLoading || !game) {
         return (
             <div className="flex flex-col gap-3 animate-pulse">
-                <div className="w-full aspect-video bg-gray-200 rounded-xl" />
+                <div className="w-full aspect-video bg-white/10 rounded-xl" />
                 <div className="flex gap-3 px-1 mt-1">
-                    <div className="w-9 h-9 rounded-full bg-gray-200 flex-shrink-0" />
+                    <div className="w-9 h-9 rounded-full bg-white/10 flex-shrink-0" />
                     <div className="flex-1 space-y-2 mt-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4" />
-                        <div className="h-3 bg-gray-200 rounded w-1/2" />
+                        <div className="h-4 bg-white/10 rounded w-3/4" />
+                        <div className="h-3 bg-white/10 rounded w-1/2" />
                     </div>
                 </div>
             </div>
@@ -38,7 +38,7 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
             onClick={() => router.push(`/game/${game.id}`)}
         >
             {/* Thumbnail Area */}
-            <div className="relative w-full aspect-video bg-gray-200 rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
+            <div className="relative w-full aspect-video bg-white/5 rounded-xl overflow-hidden shadow-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all border border-gray-800/50">
                 {game.thumbnail ? (
                     <img
                         src={game.thumbnail}
@@ -46,14 +46,14 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium bg-gray-100 italic">
+                    <div className="w-full h-full flex items-center justify-center text-gray-500 font-medium bg-black/40 italic backdrop-blur-sm">
                         No Image
                     </div>
                 )}
 
                 {/* Play Icon Overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 bg-indigo-600/90 p-3 rounded-full backdrop-blur-sm shadow-lg">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-purple-900/20 transition-colors flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 bg-purple-600/90 p-3 rounded-full backdrop-blur-md shadow-[0_0_20px_purple]">
                         <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
                     </div>
                 </div>
@@ -62,20 +62,20 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
             {/* Info Area */}
             <div className="flex gap-3 px-1">
                 {/* Creator Avatar - YouTube style */}
-                <div className="w-9 h-9 mt-0.5 rounded-full bg-indigo-100 flex-shrink-0 flex items-center justify-center text-indigo-600 font-bold text-sm border border-indigo-50 shadow-inner">
+                <div className="w-9 h-9 mt-0.5 rounded-full bg-purple-500/20 flex-shrink-0 flex items-center justify-center text-purple-300 font-bold text-sm border border-purple-500/30 shadow-inner">
                     {(game.profiles?.username || game.title).charAt(0)}
                 </div>
 
                 <div className="flex flex-col overflow-hidden">
-                    <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-sm font-bold text-gray-100 leading-tight line-clamp-2 group-hover:text-purple-400 transition-colors">
                         {game.title}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1 hover:text-gray-900 transition-colors line-clamp-1">
+                    <p className="text-xs text-gray-400 mt-1 hover:text-gray-200 transition-colors line-clamp-1">
                         {game.profiles?.username || "ユーザー"}
                     </p>
-                    <div className="flex items-center text-[11px] text-gray-400 mt-1 space-x-1.5">
+                    <div className="flex items-center text-[11px] text-gray-500 mt-1 space-x-1.5">
                         <span>{game.views || 0} 回視聴</span>
-                        <span className="w-0.5 h-0.5 bg-gray-300 rounded-full" />
+                        <span className="w-0.5 h-0.5 bg-gray-600 rounded-full" />
                         <span>いいね {game.likes || 0}</span>
                     </div>
                 </div>
