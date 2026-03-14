@@ -15,6 +15,7 @@ export interface Game {
   likes: number
   views: number
   created_at: string
+  prompt?: string
   profiles?: {
     username: string
   }

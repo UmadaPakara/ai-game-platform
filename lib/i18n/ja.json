@@ -33,7 +33,11 @@
     "submitting": "投稿中...",
     "success": "投稿完了！",
     "ai_help": "AIでゲームを生成する",
-    "ai_links": "ChatGPTやGeminiを使ってゲームコードを生成し、ここに貼り付けてください。"
+    "ai_links": "ChatGPTやGeminiを使ってゲームコードを生成し、ここに貼り付けてください。",
+    "prompt": "AIへの指示（プロンプト）",
+    "prompt_placeholder": "例：HTML, CSS, JSを1ファイルにまとめた、ブロック崩しゲームを作って",
+    "forked_from": "このゲームは別のゲームを改造して作られました",
+    "failed": "投稿に失敗しました"
   },
   "game": {
     "play": "プレイ",
@@ -41,6 +45,8 @@
     "comments": "コメント",
     "no_comments": "コメントはまだありません。",
     "related": "次におすすめ",
-    "published_at": "{date} 公開"
+    "published_at": "{date} 公開",
+    "fork": "改造する",
+    "prompt_used": "AIへの指示（プロンプト）"
   }
 }

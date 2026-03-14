@@ -33,7 +33,11 @@
     "submitting": "Uploading...",
     "success": "Upload Successful!",
     "ai_help": "Generate Game with AI",
-    "ai_links": "Generate game code using ChatGPT or Gemini and paste it here."
+    "ai_links": "Generate game code using ChatGPT or Gemini and paste it here.",
+    "prompt": "AI Prompt Used",
+    "prompt_placeholder": "e.g. Create a breakout game in a single HTML file with CSS and JS",
+    "forked_from": "This game was remixed from another game",
+    "failed": "Upload failed"
   },
   "game": {
     "play": "Play",
@@ -41,6 +45,8 @@
     "comments": "Comments",
     "no_comments": "No comments yet.",
     "related": "Up Next",
-    "published_at": "Published on {date}"
+    "published_at": "Published on {date}",
+    "fork": "Remix",
+    "prompt_used": "AI Prompt Used"
   }
 }

@@ -7,6 +7,7 @@ import AffiliateSlot from "../../components/AffiliateSlot"
 import { AFFILIATE_ADS } from "@/lib/affiliate"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
 import { Game, Comment } from "@/types"
+import { GitFork, Sparkles } from "lucide-react"
  
 export default function GamePage() {
   const { id } = useParams()
@@ -263,6 +264,13 @@ export default function GamePage() {
                   <span className="text-lg leading-none">❤️</span>
                   <span>{game.likes || 0}</span>
                 </button>
+                <button
+                  onClick={() => router.push(`/upload?fork_id=${game.id}`)}
+                  className="flex items-center gap-2 px-5 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 font-bold rounded-full transition-all active:scale-95 border border-purple-500/30 shadow-sm"
+                >
+                  <GitFork className="w-4 h-4" />
+                  <span>{t("game.fork")}</span>
+                </button>
               </div>
             </div>
  
@@ -273,6 +281,17 @@ export default function GamePage() {
               </span>
               <p className="whitespace-pre-wrap">{game.description || (language === "ja" ? "このゲームの説明はありません。" : "No description for this game.")}</p>
             </div>
+
+            {/* AI Prompt Display */}
+            {game.prompt && (
+              <div className="bg-yellow-500/5 rounded-2xl p-4 text-sm text-gray-300 leading-relaxed border border-yellow-500/20">
+                <span className="font-bold mb-1.5 flex items-center gap-2 text-yellow-300">
+                  <Sparkles className="w-4 h-4" />
+                  {t("game.prompt_used")}
+                </span>
+                <p className="whitespace-pre-wrap mt-2 text-gray-400 font-mono text-xs bg-black/30 p-3 rounded-lg">{game.prompt}</p>
+              </div>
+            )}
  
             {/* 🔥 Affiliate Banner Slot */}
             <AffiliateSlot

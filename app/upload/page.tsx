@@ -2,14 +2,15 @@
  
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import html2canvas from "html2canvas"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
 import { User } from "@supabase/supabase-js"
-import { Gamepad2 } from "lucide-react"
+import { Gamepad2, GitFork, Sparkles } from "lucide-react"
  
 export default function Upload() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const { language, t } = useLanguage()
@@ -17,7 +18,9 @@ export default function Upload() {
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [htmlCode, setHtmlCode] = useState<string>("")
+  const [prompt, setPrompt] = useState<string>("")
   const [file, setFile] = useState<File | null>(null)
+  const [forkedFrom, setForkedFrom] = useState<string | null>(null)
  
   useEffect(() => {
     const fetchUser = async () => {
@@ -25,6 +28,21 @@ export default function Upload() {
       setUser(data.user)
     }
     fetchUser()
+
+    // Fork handling: pre-fill from existing game
+    const forkId = searchParams.get("fork_id")
+    if (forkId) {
+      setForkedFrom(forkId)
+      const fetchOriginal = async () => {
+        const { data } = await supabase.from("games").select("title, description, html_code").eq("id", forkId).single()
+        if (data) {
+          setTitle((language === "ja" ? "【改造】" : "[Remix] ") + data.title)
+          setDescription(data.description || "")
+          setHtmlCode(data.html_code)
+        }
+      }
+      fetchOriginal()
+    }
   }, [])
  
   // 🔹 画像リサイズユーティリティ
@@ -147,7 +165,8 @@ export default function Upload() {
           thumbnail: thumbnailUrl,
           user_id: user.id,
           likes: 0,
-          views: 0
+          views: 0,
+          prompt: prompt || null
         }
       ])
  
@@ -172,16 +191,24 @@ export default function Upload() {
           <Gamepad2 className="w-8 h-8 text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
           <h1 className="text-3xl font-bold text-gray-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wide">{t("upload.title")}</h1>
         </div>
+
+        {/* Fork Banner */}
+        {forkedFrom && (
+          <div className="mb-6 flex items-center gap-3 bg-purple-900/30 border border-purple-500/30 rounded-xl p-4 text-purple-200">
+            <GitFork className="w-5 h-5 text-purple-400" />
+            <span className="text-sm font-medium">{t("upload.forked_from")}</span>
+          </div>
+        )}
  
         <div className="flex flex-col lg:flex-row gap-8">
  
           {/* 左：投稿フォーム */}
-          <div className="flex-1 bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
+          <div className="flex-1 bg-black/40 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.3)] border border-gray-800/50 flex flex-col gap-6">
  
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.game_title")} <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">{t("upload.game_title")} <span className="text-red-400">*</span></label>
               <input
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-gray-400"
+                className="w-full px-4 py-3 bg-black/50 border border-gray-700/50 text-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-gray-500"
                 placeholder={language === "ja" ? "例：スライムシューティング" : "e.g. Slime Shooting"}
                 value={title}
                 onChange={e => setTitle(e.target.value)}
@@ -189,19 +216,34 @@ export default function Upload() {
             </div>
  
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.description")}</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">{t("upload.description")}</label>
               <textarea
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all min-h-[120px] resize-y placeholder-gray-400"
+                className="w-full px-4 py-3 bg-black/50 border border-gray-700/50 text-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all min-h-[120px] resize-y placeholder-gray-500"
                 placeholder={language === "ja" ? "操作方法やゲームの魅力を書いてください" : "How to play, features, etc."}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
               />
             </div>
+
+            {/* AIプロンプトフィールド */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-yellow-400" />
+                {t("upload.prompt")}
+              </label>
+              <textarea
+                className="w-full px-4 py-3 bg-black/50 border border-gray-700/50 text-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all min-h-[100px] resize-y placeholder-gray-500 text-sm"
+                placeholder={t("upload.prompt_placeholder")}
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">{language === "ja" ? "※ 公開されます。他のユーザーの参考になります。" : "* This will be public. Helps other creators learn."}</p>
+            </div>
  
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.html_code")} <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">{t("upload.html_code")} <span className="text-red-400">*</span></label>
               <textarea
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all min-h-[160px] font-mono text-sm resize-y"
+                className="w-full px-4 py-3 bg-black/50 border border-gray-700/50 text-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all min-h-[160px] font-mono text-sm resize-y placeholder-gray-500"
                 placeholder="<!DOCTYPE html>..."
                 value={htmlCode}
                 onChange={e => setHtmlCode(e.target.value)}
@@ -210,24 +252,24 @@ export default function Upload() {
  
             {/* サムネイル選択・プレビュー */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t("upload.thumbnail")}</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">{t("upload.thumbnail")}</label>
  
                 {/* プレビュー表示 */}
                 {file && (
                   <div className="mb-4 relative group">
-                    <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
+                    <div className="w-full aspect-video bg-black/30 rounded-xl overflow-hidden border border-gray-700/50">
                       <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
                     </div>
                   </div>
                 )}
  
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => (document.getElementById('file-upload') as HTMLInputElement)?.click()}>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700/50 border-dashed rounded-xl hover:bg-white/5 transition-colors cursor-pointer" onClick={() => (document.getElementById('file-upload') as HTMLInputElement)?.click()}>
                   <div className="space-y-1 text-center">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                    <svg className="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                       <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    <div className="flex text-sm text-gray-600 justify-center">
-                      <label htmlFor="file-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                    <div className="flex text-sm text-gray-400 justify-center">
+                      <label htmlFor="file-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-purple-400 hover:text-purple-300">
                         <span>{language === "ja" ? "ファイルを選択またはドラッグ＆ドロップ" : "Select file or Drag & Drop"}</span>
                         <input
                           id="file-upload"
@@ -258,9 +300,9 @@ export default function Upload() {
                 </div>
               </div>
  
-            <div className="pt-4 mt-2 border-t border-gray-100">
+            <div className="pt-4 mt-2 border-t border-gray-700/50">
               <button
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md disabled:bg-indigo-300 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5"
+                className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.4)] disabled:bg-gray-700 disabled:cursor-not-allowed disabled:shadow-none transition-all transform hover:-translate-y-0.5"
                 onClick={handleUpload}
                 disabled={loading}
               >
