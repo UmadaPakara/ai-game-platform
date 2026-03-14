@@ -292,7 +292,7 @@ function HomeContent() {
                              {language === "ja" ? "HTMLコードの編集" : "Edit HTML Code"}
                           </label>
                           <textarea
-                            className="w-full h-48 p-3 bg-gray-50 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                            className="w-full h-48 p-3 bg-black/50 border border-gray-700/50 text-gray-200 rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-all"
                             value={editHtml}
                             onChange={(e) => setEditHtml(e.target.value)}
                           />
