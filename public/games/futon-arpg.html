@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>布団ちゃん：魔の森</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            background: #0a0a14;
+            font-family: 'Yu Gothic', 'Hiragino Sans', sans-serif;
+            color: white;
+            user-select: none;
+        }
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+    (() => {
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // ===== 漢数字変換 =====
+        function toKanji(num) {
+            if (num <= 0) return '零';
+            const digits = ['零','壱','弐','参','肆','伍','陸','漆','捌','玖'];
+            const units = ['', '拾', '佰', '仟'];
+            let str = '';
+            let n = Math.floor(num);
+            let place = 0;
+            while (n > 0) {
+                const d = n % 10;
+                if (d > 0) {
+                    if (place === 0) str = digits[d] + str;
+                    else str = digits[d] + units[place] + str;
+                }
+                n = Math.floor(n / 10);
+                place++;
+            }
+            return str;
+        }
+
+        // ===== アセット読み込み =====
+        const ASSETS = {
+            playerRun: '/characters/futon-chan/run_spritesheet_v3.png',
+            playerIdle: '/characters/futon-chan/jump_idle_spritesheet.png',
+            playerAttack: '/characters/futon-chan/sword_attack_vertical_v2_effect_transparent.png',
+            bg: '/images/backgrounds/futon_chan_fantasy_forest_bg.png',
+            goblinIdle: '/characters/enemies/goblin_transparent.png',
+            goblinAttack: '/characters/enemies/goblin_attack_transparent.png',
+            hobgoblinIdle: '/characters/enemies/hobgoblin_transparent.png',
+            hobgoblinAttack: '/characters/enemies/hobgoblin_attack_transparent.png',
+            goblinLordIdle: '/characters/enemies/goblin_lord_transparent.png',
+            goblinLordAttack: '/characters/enemies/goblin_lord_attack_transparent.png'
+        };
+
+        const images = {};
+        let loadedCount = 0;
+        const totalImages = Object.keys(ASSETS).length;
+
+        function loadAssets(callback) {
+            for (const key in ASSETS) {
+                const img = new Image();
+                img.src = ASSETS[key];
+                img.onload = () => {
+                    loadedCount++;
+                    if (loadedCount >= totalImages) callback();
+                };
+                img.onerror = () => {
+                    console.warn('Failed to load:', key, ASSETS[key]);
+                    loadedCount++;
+                    if (loadedCount >= totalImages) callback();
+                };
+                images[key] = img;
+            }
+        }
+
+        // ===== ゲーム状態 =====
+        const GAME_STATE = { TITLE: 0, PLAYING: 1, WAVE_TRANSITION: 2, GAME_OVER: 3, CLEAR: 4 };
+        let gameState = GAME_STATE.TITLE;
+        let wave = 1;
+        let waveTransitionTimer = 0;
+        let shakeTimer = 0;
+        let shakeIntensity = 0;
+        let bgScrollX = 0;
+        let frameCount = 0;
+
+        const WAVE_NAMES = ['', 'ゴブリンの群れ', 'ホブゴブリンの精鋭', 'ゴブリンロード降臨'];
+
+        // ===== プレイヤー =====
+        const player = {
+            x: 100, y: 0, width: 80, height: 100,
+            vx: 0, vy: 0,
+            speed: 5, jumpPower: 14, gravity: 0.7,
+            grounded: false, dir: 1,
+            hp: 100, maxHp: 100, atk: 15,
+            state: 'idle', frame: 0, timer: 0,
+            attackTimer: 0, isAttacking: false,
+            invincible: 0, hitCooldown: 0
+        };
+
+        // ===== 敵 =====
+        let enemies = [];
+        const particles = [];
+        const damageTexts = [];
+
+        function groundY() { return canvas.height - 150; }
+
+        function createEnemy(type, x) {
+            const configs = {
+                goblin:     { hp: 30, atk: 5,  speed: 2,   w: 80,  h: 80,  idleImg: 'goblinIdle',     atkImg: 'goblinAttack',     idleFrames: 3, atkFrames: 2, name: 'ゴブリン', color: '#4a4' },
+                hobgoblin:  { hp: 60, atk: 10, speed: 1.5, w: 110, h: 110, idleImg: 'hobgoblinIdle',   atkImg: 'hobgoblinAttack',  idleFrames: 3, atkFrames: 2, name: 'ホブゴブリン', color: '#a84' },
+                goblinLord: { hp: 200,atk: 20, speed: 1,   w: 150, h: 150, idleImg: 'goblinLordIdle',  atkImg: 'goblinLordAttack', idleFrames: 3, atkFrames: 2, name: 'ゴブリンロード', color: '#c44' }
+            };
+            const c = configs[type];
+            return {
+                type, x: x || canvas.width + Math.random() * 200,
+                y: groundY() - c.h + 20,
+                width: c.w, height: c.h,
+                vx: 0, hp: c.hp, maxHp: c.hp, atk: c.atk,
+                speed: c.speed, alive: true, dir: -1,
+                state: 'idle', frame: 0, timer: 0,
+                attackTimer: 0, attackCooldown: 60 + Math.random() * 60,
+                isAttacking: false,
+                idleImg: c.idleImg, atkImg: c.atkImg,
+                idleFrames: c.idleFrames, atkFrames: c.atkFrames,
+                name: c.name, color: c.color,
+                hitFlash: 0
+            };
+        }
+
+        function spawnWave(w) {
+            enemies = [];
+            if (w === 1) {
+                for (let i = 0; i < 5; i++) enemies.push(createEnemy('goblin', canvas.width + 100 + i * 200));
+            } else if (w === 2) {
+                for (let i = 0; i < 3; i++) enemies.push(createEnemy('hobgoblin', canvas.width + 100 + i * 250));
+            } else if (w === 3) {
+                enemies.push(createEnemy('goblinLord', canvas.width + 150));
+            }
+        }
+
+        function resetGame() {
+            player.hp = player.maxHp;
+            player.x = 100;
+            player.y = groundY() - player.height;
+            player.vx = 0; player.vy = 0;
+            player.isAttacking = false;
+            player.invincible = 0;
+            player.state = 'idle';
+            player.frame = 0;
+            wave = 1;
+            particles.length = 0;
+            damageTexts.length = 0;
+            spawnWave(1);
+            gameState = GAME_STATE.PLAYING;
+        }
+
+        // ===== 入力 =====
+        const keys = {};
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            if (e.code === 'KeyZ') {
+                if (gameState === GAME_STATE.TITLE) resetGame();
+                else if (gameState === GAME_STATE.GAME_OVER || gameState === GAME_STATE.CLEAR) {
+                    gameState = GAME_STATE.TITLE;
+                }
+            }
+        });
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        // ===== パーティクル =====
+        function spawnParticles(x, y, count, color) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12 - 3,
+                    life: 20 + Math.random() * 20,
+                    maxLife: 40,
+                    size: 2 + Math.random() * 4,
+                    color
+                });
+            }
+        }
+
+        function spawnDamageText(x, y, dmg, color) {
+            damageTexts.push({ x, y, text: toKanji(dmg), life: 45, color: color || '#fff' });
+        }
+
+        // ===== 更新 =====
+        function update() {
+            frameCount++;
+
+            if (gameState === GAME_STATE.WAVE_TRANSITION) {
+                waveTransitionTimer--;
+                if (waveTransitionTimer <= 0) {
+                    gameState = GAME_STATE.PLAYING;
+                }
+                return;
+            }
+
+            if (gameState !== GAME_STATE.PLAYING) return;
+
+            // Background scroll
+            bgScrollX -= 0.5;
+
+            // -- Player Input --
+            if (!player.isAttacking) {
+                if (keys['ArrowRight']) {
+                    player.vx = player.speed;
+                    player.dir = 1;
+                    if (player.grounded) player.state = 'run';
+                } else if (keys['ArrowLeft']) {
+                    player.vx = -player.speed;
+                    player.dir = -1;
+                    if (player.grounded) player.state = 'run';
+                } else {
+                    player.vx *= 0.75;
+                    if (player.grounded) player.state = 'idle';
+                }
+            }
+
+            if (keys['ArrowUp'] && player.grounded) {
+                player.vy = -player.jumpPower;
+                player.grounded = false;
+                player.state = 'jump';
+            }
+
+            if (keys['KeyZ'] && !player.isAttacking && player.grounded) {
+                player.isAttacking = true;
+                player.attackTimer = 20;
+                player.state = 'attack';
+                player.frame = 0;
+                player.vx *= 0.3;
+            }
+
+            // -- Player Physics --
+            player.x += player.vx;
+            player.vy += player.gravity;
+            player.y += player.vy;
+
+            const gY = groundY();
+            if (player.y >= gY - player.height) {
+                player.y = gY - player.height;
+                player.vy = 0;
+                player.grounded = true;
+            } else {
+                player.grounded = false;
+                if (!player.isAttacking) player.state = 'jump';
+            }
+
+            // Clamp player to screen
+            player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+
+            // -- Animation --
+            player.timer++;
+            if (player.timer > 6) {
+                player.frame++;
+                player.timer = 0;
+            }
+
+            if (player.isAttacking) {
+                player.attackTimer--;
+                if (player.attackTimer <= 0) player.isAttacking = false;
+            }
+
+            if (player.invincible > 0) player.invincible--;
+            if (player.hitCooldown > 0) player.hitCooldown--;
+
+            // -- Enemies --
+            let allDead = true;
+            enemies.forEach(en => {
+                if (!en.alive) return;
+                allDead = false;
+
+                // AI
+                const dx = player.x - en.x;
+                const dist = Math.abs(dx);
+                en.dir = dx > 0 ? 1 : -1;
+
+                if (en.isAttacking) {
+                    en.attackTimer--;
+                    if (en.attackTimer <= 0) {
+                        en.isAttacking = false;
+                        en.attackCooldown = 60 + Math.random() * 40;
+                    }
+                } else {
+                    // Move toward player
+                    if (dist > 80) {
+                        en.x += en.speed * en.dir;
+                        en.state = 'idle';
+                    } else {
+                        en.attackCooldown--;
+                        if (en.attackCooldown <= 0) {
+                            en.isAttacking = true;
+                            en.attackTimer = 30;
+                            en.state = 'attack';
+                            en.frame = 0;
+
+                            // Deal damage to player
+                            if (dist < 120 && player.invincible <= 0) {
+                                player.hp -= en.atk;
+                                player.invincible = 40;
+                                spawnDamageText(player.x + 40, player.y - 10, en.atk, '#ff4444');
+                                shakeTimer = 6;
+                                shakeIntensity = 5;
+                                if (player.hp <= 0) {
+                                    player.hp = 0;
+                                    gameState = GAME_STATE.GAME_OVER;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Animation
+                en.timer++;
+                if (en.timer > 8) {
+                    en.frame++;
+                    en.timer = 0;
+                }
+
+                if (en.hitFlash > 0) en.hitFlash--;
+
+                // Player attack hit detection
+                if (player.isAttacking && player.attackTimer > 10 && player.attackTimer < 18) {
+                    const hitX = player.x + (player.dir === 1 ? player.width : -60);
+                    const hitW = 80;
+                    if (hitX < en.x + en.width && hitX + hitW > en.x &&
+                        Math.abs(player.y - en.y) < 80 && en.hitCooldown === undefined || (en.hitCooldown || 0) <= 0) {
+                        en.hp -= player.atk;
+                        en.hitFlash = 6;
+                        en.hitCooldown = 15;
+                        spawnDamageText(en.x + en.width / 2, en.y - 10, player.atk, '#ffff44');
+                        shakeTimer = 3;
+                        shakeIntensity = 3;
+
+                        if (en.hp <= 0) {
+                            en.alive = false;
+                            spawnParticles(en.x + en.width / 2, en.y + en.height / 2,
+                                en.type === 'goblinLord' ? 40 : 15, en.color);
+                        }
+                    }
+                }
+                if (en.hitCooldown > 0) en.hitCooldown--;
+            });
+
+            // Wave check
+            if (allDead && enemies.length > 0) {
+                if (wave >= 3) {
+                    gameState = GAME_STATE.CLEAR;
+                } else {
+                    wave++;
+                    waveTransitionTimer = 120;
+                    gameState = GAME_STATE.WAVE_TRANSITION;
+                    spawnWave(wave);
+                }
+            }
+
+            // -- Particles --
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                p.life--;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            // -- Damage Texts --
+            for (let i = damageTexts.length - 1; i >= 0; i--) {
+                const dt = damageTexts[i];
+                dt.y -= 1.5;
+                dt.life--;
+                if (dt.life <= 0) damageTexts.splice(i, 1);
+            }
+
+            // Shake
+            if (shakeTimer > 0) shakeTimer--;
+        }
+
+        // ===== 描画 =====
+        function drawSpriteHorizontal(img, frameIndex, totalFrames, x, y, w, h, dir) {
+            if (!img || !img.complete) return;
+            const fw = img.width / totalFrames;
+            const fh = img.height;
+            const sx = (frameIndex % totalFrames) * fw;
+
+            ctx.save();
+            if (dir === -1) {
+                ctx.translate(x + w, y);
+                ctx.scale(-1, 1);
+                ctx.drawImage(img, sx, 0, fw, fh, 0, 0, w, h);
+            } else {
+                ctx.drawImage(img, sx, 0, fw, fh, x, y, w, h);
+            }
+            ctx.restore();
+        }
+
+        function drawHPBar(x, y, w, h, hp, maxHp, color, name) {
+            // Background
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
+            // Bar
+            const pct = Math.max(0, hp / maxHp);
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, w * pct, h);
+            // Border
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - 2, y - 2, w + 4, h + 4);
+            // Text
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px "Yu Gothic", sans-serif';
+            ctx.fillText(`${name} ❤ ${toKanji(Math.max(0, Math.ceil(hp)))}/${toKanji(maxHp)}`, x, y - 6);
+        }
+
+        function draw() {
+            ctx.save();
+
+            // Screen shake
+            if (shakeTimer > 0) {
+                const sx = (Math.random() - 0.5) * shakeIntensity * 2;
+                const sy = (Math.random() - 0.5) * shakeIntensity * 2;
+                ctx.translate(sx, sy);
+            }
+
+            // Clear
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(-10, -10, canvas.width + 20, canvas.height + 20);
+
+            // Background (scrolling)
+            if (images.bg && images.bg.complete) {
+                const bgW = canvas.width;
+                const bgH = canvas.height;
+                const scrollX = bgScrollX % bgW;
+                ctx.globalAlpha = 0.7;
+                ctx.drawImage(images.bg, scrollX, 0, bgW, bgH);
+                ctx.drawImage(images.bg, scrollX + bgW, 0, bgW, bgH);
+                ctx.globalAlpha = 1;
+            }
+
+            // Ground
+            const gY = groundY();
+            const grad = ctx.createLinearGradient(0, gY, 0, canvas.height);
+            grad.addColorStop(0, '#1a1a2e');
+            grad.addColorStop(1, '#0a0a14');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, gY, canvas.width, canvas.height - gY);
+
+            // Ground line
+            ctx.strokeStyle = 'rgba(100,200,100,0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, gY);
+            ctx.lineTo(canvas.width, gY);
+            ctx.stroke();
+
+            if (gameState === GAME_STATE.TITLE) {
+                drawTitle();
+                ctx.restore();
+                return;
+            }
+
+            // -- Draw Enemies --
+            enemies.forEach(en => {
+                if (!en.alive) return;
+
+                // Hit flash
+                if (en.hitFlash > 0) {
+                    ctx.globalAlpha = 0.5 + Math.sin(Date.now() * 0.05) * 0.5;
+                }
+
+                const img = en.isAttacking ? images[en.atkImg] : images[en.idleImg];
+                const frames = en.isAttacking ? en.atkFrames : en.idleFrames;
+                drawSpriteHorizontal(img, en.frame, frames, en.x, en.y, en.width, en.height, en.dir);
+                ctx.globalAlpha = 1;
+
+                // Enemy HP bar (small, above head)
+                if (en.type === 'goblinLord') {
+                    // Boss bar drawn separately at top
+                } else {
+                    const barW = en.width * 0.8;
+                    const barX = en.x + (en.width - barW) / 2;
+                    const barY = en.y - 8;
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                    ctx.fillRect(barX, barY, barW, 5);
+                    ctx.fillStyle = en.color;
+                    ctx.fillRect(barX, barY, barW * Math.max(0, en.hp / en.maxHp), 5);
+                }
+            });
+
+            // -- Draw Player --
+            if (player.invincible > 0 && Math.floor(player.invincible / 3) % 2 === 0) {
+                ctx.globalAlpha = 0.4;
+            }
+
+            if (player.state === 'run') {
+                // run_spritesheet_v3: analyze frame count
+                drawSpriteHorizontal(images.playerRun, player.frame % 8, 8,
+                    player.x - 20, player.y - 20, player.width + 40, player.height + 40, player.dir);
+            } else if (player.state === 'attack') {
+                drawSpriteHorizontal(images.playerAttack, player.frame % 2, 2,
+                    player.x - 30, player.y - 30, player.width + 60, player.height + 60, player.dir);
+            } else if (player.state === 'jump') {
+                // idle/jump sheet - use bottom row
+                if (images.playerIdle && images.playerIdle.complete) {
+                    const fw = images.playerIdle.width / 4;
+                    const fh = images.playerIdle.height / 2;
+                    const sx = (player.frame % 4) * fw;
+                    ctx.save();
+                    if (player.dir === -1) {
+                        ctx.translate(player.x + player.width, player.y);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(images.playerIdle, sx, fh, fw, fh, 0, 0, player.width, player.height);
+                    } else {
+                        ctx.drawImage(images.playerIdle, sx, fh, fw, fh, player.x, player.y, player.width, player.height);
+                    }
+                    ctx.restore();
+                }
+            } else { // idle
+                if (images.playerIdle && images.playerIdle.complete) {
+                    const fw = images.playerIdle.width / 4;
+                    const fh = images.playerIdle.height / 2;
+                    const sx = (player.frame % 4) * fw;
+                    ctx.save();
+                    if (player.dir === -1) {
+                        ctx.translate(player.x + player.width, player.y);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(images.playerIdle, sx, 0, fw, fh, 0, 0, player.width, player.height);
+                    } else {
+                        ctx.drawImage(images.playerIdle, sx, 0, fw, fh, player.x, player.y, player.width, player.height);
+                    }
+                    ctx.restore();
+                }
+            }
+            ctx.globalAlpha = 1;
+
+            // -- Particles --
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life / p.maxLife;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1;
+
+            // -- Damage Texts --
+            damageTexts.forEach(dt => {
+                ctx.globalAlpha = Math.min(1, dt.life / 15);
+                ctx.fillStyle = dt.color;
+                ctx.font = 'bold 22px "Yu Gothic", sans-serif';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                ctx.strokeText(dt.text, dt.x, dt.y);
+                ctx.fillText(dt.text, dt.x, dt.y);
+            });
+            ctx.globalAlpha = 1;
+
+            // -- UI --
+            // Player HP
+            drawHPBar(20, 40, 220, 14, player.hp, player.maxHp, '#ff3366', '布団ちゃん');
+
+            // Boss HP (top center)
+            enemies.forEach(en => {
+                if (en.type === 'goblinLord' && en.alive) {
+                    const bossBarW = 400;
+                    const bossBarX = (canvas.width - bossBarW) / 2;
+                    drawHPBar(bossBarX, 40, bossBarW, 16, en.hp, en.maxHp, '#cc2244', en.name);
+                }
+            });
+
+            // Wave indicator
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '14px "Yu Gothic", sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`WAVE ${wave} — ${WAVE_NAMES[wave]}`, canvas.width - 20, 30);
+            ctx.textAlign = 'left';
+
+            // Controls
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '13px "Yu Gothic", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('[ ← → ] 移動　[ ↑ ] ジャンプ　[ Z ] 攻撃', canvas.width / 2, canvas.height - 20);
+            ctx.textAlign = 'left';
+
+            // -- Wave Transition --
+            if (gameState === GAME_STATE.WAVE_TRANSITION) {
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 48px "Yu Gothic", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`WAVE ${wave}`, canvas.width / 2, canvas.height / 2 - 20);
+                ctx.font = '24px "Yu Gothic", sans-serif';
+                ctx.fillStyle = '#aaa';
+                ctx.fillText(WAVE_NAMES[wave], canvas.width / 2, canvas.height / 2 + 30);
+                ctx.textAlign = 'left';
+            }
+
+            // -- Game Over --
+            if (gameState === GAME_STATE.GAME_OVER) {
+                ctx.fillStyle = 'rgba(80,0,0,0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff3333';
+                ctx.font = 'bold 64px "Yu Gothic", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('敗北', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.font = '20px "Yu Gothic", sans-serif';
+                ctx.fillStyle = '#ccc';
+                ctx.fillText('[ Z ] で再挑戦', canvas.width / 2, canvas.height / 2 + 40);
+                ctx.textAlign = 'left';
+            }
+
+            // -- Clear --
+            if (gameState === GAME_STATE.CLEAR) {
+                ctx.fillStyle = 'rgba(0,40,80,0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffdd44';
+                ctx.font = 'bold 64px "Yu Gothic", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('討伐完了！', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.font = '20px "Yu Gothic", sans-serif';
+                ctx.fillStyle = '#fff';
+                ctx.fillText('ゴブリンロードを討伐した！', canvas.width / 2, canvas.height / 2 + 30);
+                ctx.fillStyle = '#aaa';
+                ctx.fillText('[ Z ] でタイトルへ', canvas.width / 2, canvas.height / 2 + 70);
+                ctx.textAlign = 'left';
+            }
+
+            ctx.restore();
+        }
+
+        function drawTitle() {
+            // Dark overlay
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Title
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffdd44';
+            ctx.font = 'bold 56px "Yu Gothic", sans-serif';
+            ctx.shadowColor = '#ff6600';
+            ctx.shadowBlur = 20;
+            ctx.fillText('布団ちゃん：魔の森', canvas.width / 2, canvas.height / 2 - 60);
+            ctx.shadowBlur = 0;
+
+            // Subtitle
+            ctx.fillStyle = '#aaa';
+            ctx.font = '18px "Yu Gothic", sans-serif';
+            ctx.fillText('ゴブリンの脅威から森を守れ！', canvas.width / 2, canvas.height / 2);
+
+            // Start prompt
+            ctx.fillStyle = Math.sin(Date.now() * 0.005) > 0 ? '#fff' : '#888';
+            ctx.font = '22px "Yu Gothic", sans-serif';
+            ctx.fillText('[ Z ] でスタート', canvas.width / 2, canvas.height / 2 + 60);
+
+            ctx.textAlign = 'left';
+        }
+
+        // ===== ゲームループ =====
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        loadAssets(() => {
+            player.y = groundY() - player.height;
+            gameLoop();
+        });
+    })();
+    </script>
+</body>
+</html>
