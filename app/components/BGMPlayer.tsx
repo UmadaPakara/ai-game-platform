@@ -39,7 +39,7 @@ export default function BGMPlayer() {
     // マスターゲイン設定
     const masterGain = ctx.createGain()
     masterGain.gain.setValueAtTime(0, ctx.currentTime)
-    masterGain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 1) 
+    masterGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 1) 
     masterGain.connect(ctx.destination)
     masterGainRef.current = masterGain
 
@@ -57,7 +57,7 @@ export default function BGMPlayer() {
       highpass.type = 'highpass'
       highpass.frequency.setValueAtTime(7000, time)
       const g = ctx.createGain()
-      g.gain.setValueAtTime(0.04, time)
+      g.gain.setValueAtTime(0.06, time)
       g.gain.exponentialRampToValueAtTime(0.001, time + 0.03)
       source.connect(highpass)
       highpass.connect(g)
@@ -92,8 +92,8 @@ export default function BGMPlayer() {
     const scheduler = () => {
       if (!masterGainRef.current || !isPlayingRef.current) return
       while (nextNoteTime < ctx.currentTime + 0.1) {
-        if (noteIdx % 2 === 0) playNote(melody[Math.floor(noteIdx / 2) % melody.length], nextNoteTime, 0.1, 'square', 0.03)
-        if (noteIdx % 4 === 0) playNote(bass[Math.floor(noteIdx / 8) % bass.length], nextNoteTime, 0.3, 'triangle', 0.06)
+        if (noteIdx % 2 === 0) playNote(melody[Math.floor(noteIdx / 2) % melody.length], nextNoteTime, 0.1, 'square', 0.08)
+        if (noteIdx % 4 === 0) playNote(bass[Math.floor(noteIdx / 8) % bass.length], nextNoteTime, 0.3, 'triangle', 0.12)
         if (noteIdx % 2 === 0) playHihat(nextNoteTime)
         noteIdx++
         nextNoteTime += step
