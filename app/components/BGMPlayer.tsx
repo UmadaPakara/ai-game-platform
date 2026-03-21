@@ -15,11 +15,13 @@ export default function BGMPlayer() {
   const oscillatorsRef = useRef<any[]>([])
   const schedulerRef = useRef<number | null>(null)
   
-  const [isMuted, setIsMuted] = useState(true)
+  const [isMuted, setIsMuted] = useState(false) // デフォルトでONに設定
   const [isGamePage, setIsGamePage] = useState(false)
 
   // プロシージャルBGMの開始
   const startSynthesizer = () => {
+    if (oscillatorsRef.current.length > 0) return // 既に再生中なら何もしない
+
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
     }
@@ -32,10 +34,11 @@ export default function BGMPlayer() {
     // マスターゲイン設定
     const masterGain = ctx.createGain()
     masterGain.gain.setValueAtTime(0, ctx.currentTime)
-    masterGain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 1) 
+    masterGain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 1) 
     masterGain.connect(ctx.destination)
     masterGainRef.current = masterGain
 
+    // ... (rest of the synthesizer logic remains the same)
     // 1. ノイズによるリズム（ハイハット風）
     const bufferSize = ctx.sampleRate * 0.05
     const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
@@ -43,6 +46,7 @@ export default function BGMPlayer() {
     for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
 
     const playHihat = (time: number) => {
+      if (!masterGainRef.current) return
       const source = ctx.createBufferSource()
       source.buffer = noiseBuffer
       const highpass = ctx.createBiquadFilter()
@@ -53,12 +57,13 @@ export default function BGMPlayer() {
       g.gain.exponentialRampToValueAtTime(0.001, time + 0.03)
       source.connect(highpass)
       highpass.connect(g)
-      g.connect(masterGain)
+      g.connect(masterGainRef.current)
       source.start(time)
     }
 
     // 2. メロディとベース
     const playNote = (freq: number, time: number, duration: number, type: OscillatorType = 'square', vol = 0.08) => {
+      if (!masterGainRef.current) return
       const osc = ctx.createOscillator()
       const g = ctx.createGain()
       osc.type = type
@@ -67,32 +72,26 @@ export default function BGMPlayer() {
       g.gain.linearRampToValueAtTime(vol, time + 0.01)
       g.gain.exponentialRampToValueAtTime(0.001, time + duration)
       osc.connect(g)
-      g.connect(masterGain)
+      g.connect(masterGainRef.current)
       osc.start(time)
       osc.stop(time + duration)
+      oscillatorsRef.current.push(osc)
     }
 
     const bpm = 128
     const step = 60 / bpm / 2 // 8分音符
-    const melody = [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33] // C5, D5, E5, G5, A5...
-    const bass = [130.81, 196.00, 146.83, 220.00] // C3, G3, D3, A3
+    const melody = [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33] 
+    const bass = [130.81, 196.00, 146.83, 220.00] 
     
     let noteIdx = 0
     let nextNoteTime = ctx.currentTime
 
     const scheduler = () => {
+      if (!masterGainRef.current) return
       while (nextNoteTime < ctx.currentTime + 0.1) {
-        // メロディ (16分音符)
-        if (noteIdx % 2 === 0) {
-          playNote(melody[Math.floor(noteIdx / 2) % melody.length], nextNoteTime, 0.1, 'square', 0.04)
-        }
-        // ベース (8分音符)
-        if (noteIdx % 4 === 0) {
-          playNote(bass[Math.floor(noteIdx / 8) % bass.length], nextNoteTime, 0.3, 'triangle', 0.08)
-        }
-        // リズム (8分音符)
+        if (noteIdx % 2 === 0) playNote(melody[Math.floor(noteIdx / 2) % melody.length], nextNoteTime, 0.1, 'square', 0.03)
+        if (noteIdx % 4 === 0) playNote(bass[Math.floor(noteIdx / 8) % bass.length], nextNoteTime, 0.3, 'triangle', 0.06)
         if (noteIdx % 2 === 0) playHihat(nextNoteTime)
-
         noteIdx++
         nextNoteTime += step
       }
@@ -106,10 +105,14 @@ export default function BGMPlayer() {
     const masterGain = masterGainRef.current
     if (ctx && masterGain) {
       masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5)
-      if (schedulerRef.current) cancelAnimationFrame(schedulerRef.current)
+      if (schedulerRef.current) {
+        cancelAnimationFrame(schedulerRef.current)
+        schedulerRef.current = null
+      }
       setTimeout(() => {
         oscillatorsRef.current.forEach(osc => { try { osc.stop() } catch(e) {} })
         oscillatorsRef.current = []
+        masterGainRef.current = null
       }, 600)
     }
   }
@@ -117,8 +120,31 @@ export default function BGMPlayer() {
   useEffect(() => {
     const isGame = pathname.startsWith("/game/")
     setIsGamePage(isGame)
-    if (isGame) stopSynthesizer()
-    else if (!isMuted) startSynthesizer()
+    
+    if (isGame) {
+      stopSynthesizer()
+    } else if (!isMuted) {
+      startSynthesizer()
+    }
+
+    // ブラウザのオートプレイ制限回避のためのグローバルなインタラクション監視
+    const handleInteraction = () => {
+      if (audioCtxRef.current?.state === 'suspended') {
+        audioCtxRef.current.resume().then(() => {
+          if (!isMuted && !isGamePage) startSynthesizer()
+        })
+      } else if (!isMuted && !isGamePage) {
+        startSynthesizer()
+      }
+    }
+
+    window.addEventListener('click', handleInteraction)
+    window.addEventListener('touchstart', handleInteraction)
+
+    return () => {
+      window.removeEventListener('click', handleInteraction)
+      window.removeEventListener('touchstart', handleInteraction)
+    }
   }, [pathname, isMuted])
 
   const toggleMute = () => {
