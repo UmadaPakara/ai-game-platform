@@ -26,6 +26,14 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
+        const playerImgEl = document.createElement('img');
+        playerImgEl.style.position = 'absolute';
+        playerImgEl.style.pointerEvents = 'none';
+        playerImgEl.style.zIndex = '10';
+        playerImgEl.style.display = 'none';
+        document.body.appendChild(playerImgEl);
+        let lastPlayerGif = '';
+
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -55,9 +63,6 @@
 
         // ===== アセット読み込み =====
         const ASSETS = {
-            playerRun: '/characters/futon-chan/run_spritesheet_v3.png',
-            playerIdle: '/characters/futon-chan/jump_idle_spritesheet.png',
-            playerAttack: '/characters/futon-chan/sword_attack_vertical_v2_effect_transparent.png',
             bg: '/images/backgrounds/futon_chan_fantasy_forest_bg.png',
             goblinIdle: '/characters/enemies/goblin_transparent.png',
             goblinAttack: '/characters/enemies/goblin_attack_transparent.png',
@@ -67,24 +72,53 @@
             goblinLordAttack: '/characters/enemies/goblin_lord_attack_transparent.png'
         };
 
+        // Individual frames for player
+        const RUN_FRAME_COUNT = 12;
+        const ATTACK_FRAME_COUNT = 2;
+        const playerRunFrames = [];
+        const playerAttackFrames = [];
+
         const images = {};
         let loadedCount = 0;
-        const totalImages = Object.keys(ASSETS).length;
+        let totalToLoad = Object.keys(ASSETS).length + RUN_FRAME_COUNT + ATTACK_FRAME_COUNT;
 
         function loadAssets(callback) {
+            function onLoad() {
+                loadedCount++;
+                if (loadedCount >= totalToLoad) callback();
+            }
+            function onError(name) {
+                console.warn('Failed to load:', name);
+                loadedCount++;
+                if (loadedCount >= totalToLoad) callback();
+            }
+
+            // Load standard assets
             for (const key in ASSETS) {
                 const img = new Image();
                 img.src = ASSETS[key];
-                img.onload = () => {
-                    loadedCount++;
-                    if (loadedCount >= totalImages) callback();
-                };
-                img.onerror = () => {
-                    console.warn('Failed to load:', key, ASSETS[key]);
-                    loadedCount++;
-                    if (loadedCount >= totalImages) callback();
-                };
+                img.onload = onLoad;
+                img.onerror = () => onError(key);
                 images[key] = img;
+            }
+
+            // Load run frames
+            for (let i = 0; i < RUN_FRAME_COUNT; i++) {
+                const img = new Image();
+                const num = String(i).padStart(2, '0');
+                img.src = `/characters/futon-chan/run_frames/futon_frame_${num}.png`;
+                img.onload = onLoad;
+                img.onerror = () => onError(`run_frame_${num}`);
+                playerRunFrames.push(img);
+            }
+
+            // Load attack frames
+            for (let i = 0; i < ATTACK_FRAME_COUNT; i++) {
+                const img = new Image();
+                img.src = `/characters/futon-chan/attack_v2_frames/frame_${i}.png`;
+                img.onload = onLoad;
+                img.onerror = () => onError(`attack_frame_${i}`);
+                playerAttackFrames.push(img);
             }
         }
 
@@ -433,9 +467,10 @@
             ctx.save();
 
             // Screen shake
+            let sx = 0, sy = 0;
             if (shakeTimer > 0) {
-                const sx = (Math.random() - 0.5) * shakeIntensity * 2;
-                const sy = (Math.random() - 0.5) * shakeIntensity * 2;
+                sx = (Math.random() - 0.5) * shakeIntensity * 2;
+                sy = (Math.random() - 0.5) * shakeIntensity * 2;
                 ctx.translate(sx, sy);
             }
 
@@ -471,6 +506,7 @@
             ctx.stroke();
 
             if (gameState === GAME_STATE.TITLE) {
+                if (playerImgEl) playerImgEl.style.display = 'none';
                 drawTitle();
                 ctx.restore();
                 return;
@@ -509,41 +545,63 @@
                 ctx.globalAlpha = 0.4;
             }
 
+            let drawPlayerOnCanvas = true;
+            let currentGif = '';
+            let drawW = player.width;
+            let drawH = player.height;
+            let offX = 0;
+            let offY = 0;
+
             if (player.state === 'run') {
-                // run_spritesheet_v3: analyze frame count
-                drawSpriteHorizontal(images.playerRun, player.frame % 8, 8,
-                    player.x - 20, player.y - 20, player.width + 40, player.height + 40, player.dir);
+                currentGif = '/characters/futon-chan/futon_animation_v2_smooth.gif';
+                drawW = player.width + 40;
+                drawH = player.height + 40;
+                offX = -20;
+                offY = -20;
+                drawPlayerOnCanvas = false;
             } else if (player.state === 'attack') {
-                drawSpriteHorizontal(images.playerAttack, player.frame % 2, 2,
-                    player.x - 30, player.y - 30, player.width + 60, player.height + 60, player.dir);
-            } else if (player.state === 'jump') {
-                // idle/jump sheet - use bottom row
-                if (images.playerIdle && images.playerIdle.complete) {
-                    const fw = images.playerIdle.width / 4;
-                    const fh = images.playerIdle.height / 2;
-                    const sx = (player.frame % 4) * fw;
-                    ctx.save();
-                    if (player.dir === -1) {
-                        ctx.translate(player.x + player.width, player.y);
-                        ctx.scale(-1, 1);
-                        ctx.drawImage(images.playerIdle, sx, fh, fw, fh, 0, 0, player.width, player.height);
-                    } else {
-                        ctx.drawImage(images.playerIdle, sx, fh, fw, fh, player.x, player.y, player.width, player.height);
-                    }
-                    ctx.restore();
+                currentGif = '/characters/futon-chan/futon_vertical_attack.gif';
+                drawW = player.width + 60;
+                drawH = player.height + 60;
+                offX = -30;
+                offY = -30;
+                drawPlayerOnCanvas = false;
+            }
+
+            if (gameState !== GAME_STATE.PLAYING) {
+                drawPlayerOnCanvas = true; // Use canvas for other states or hide
+            }
+
+            if (!drawPlayerOnCanvas) {
+                if (lastPlayerGif !== currentGif) {
+                    playerImgEl.src = currentGif + '?t=' + Date.now();
+                    lastPlayerGif = currentGif;
                 }
-            } else { // idle
-                if (images.playerIdle && images.playerIdle.complete) {
-                    const fw = images.playerIdle.width / 4;
-                    const fh = images.playerIdle.height / 2;
-                    const sx = (player.frame % 4) * fw;
+                playerImgEl.style.display = 'block';
+                playerImgEl.style.left = (player.x + offX + sx) + 'px';
+                playerImgEl.style.top = (player.y + offY + sy) + 'px';
+                playerImgEl.style.width = drawW + 'px';
+                playerImgEl.style.height = drawH + 'px';
+                playerImgEl.style.transform = player.dir === -1 ? 'scaleX(-1)' : 'scaleX(1)';
+                
+                if (player.invincible > 0 && Math.floor(player.invincible / 3) % 2 === 0) {
+                    playerImgEl.style.opacity = '0.4';
+                } else {
+                    playerImgEl.style.opacity = '1';
+                }
+            } else {
+                playerImgEl.style.display = 'none';
+                let idleImg = playerRunFrames[0];
+                if (player.state === 'jump') idleImg = playerRunFrames[3];
+
+                if (idleImg && idleImg.complete) {
                     ctx.save();
                     if (player.dir === -1) {
                         ctx.translate(player.x + player.width, player.y);
                         ctx.scale(-1, 1);
-                        ctx.drawImage(images.playerIdle, sx, 0, fw, fh, 0, 0, player.width, player.height);
+                        ctx.drawImage(idleImg, 0, 0, idleImg.width, idleImg.height, -10, -10, player.width + 20, player.height + 20);
                     } else {
-                        ctx.drawImage(images.playerIdle, sx, 0, fw, fh, player.x, player.y, player.width, player.height);
+                        ctx.drawImage(idleImg, 0, 0, idleImg.width, idleImg.height, player.x - 10, player.y - 10, player.width + 20, player.height + 20);
                     }
                     ctx.restore();
                 }
