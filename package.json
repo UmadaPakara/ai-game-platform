@@ -6,9 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "remotion": "remotion studio",
+    "remotion:render": "remotion render remotion/Root.tsx AIShortVideo ../Desktop/動画/out.mp4",
+    "remotion:render:new": "remotion render remotion/Root.tsx LiveActionShort ../Desktop/動画/live_action_short.mp4",
+    "remotion:render:new-promo": "remotion render remotion/Root.tsx NewPromoVideo ../Desktop/動画/new_promo_video.mp4",
+    "remotion:render:shorts-v2": "remotion render remotion/Root.tsx ShortsVideoV2 ../Desktop/動画/shorts_v2.mp4",
+    "remotion:render:final": "remotion render remotion/Root.tsx FinalShortsVideo ../Desktop/動画/final_shorts_video.mp4"
   },
   "dependencies": {
+    "@remotion/bundler": "latest",
+    "@remotion/cli": "latest",
+    "@remotion/google-fonts": "^4.0.435",
+    "@remotion/player": "latest",
     "@supabase/supabase-js": "^2.98.0",
     "clsx": "^2.1.1",
     "html2canvas": "^1.4.1",
@@ -16,6 +26,7 @@
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "remotion": "latest",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {

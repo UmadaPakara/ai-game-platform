@@ -206,7 +206,7 @@ export default function GamePage() {
           className={`w-full bg-black rounded-xl overflow-hidden shadow-2xl relative group transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 rounded-none flex items-center justify-center' : ''}`}
           style={{ aspectRatio: isFullscreen ? 'auto' : aspect }}
         >
-          <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-4 right-4 z-10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
             <button
               onClick={toggleFullscreen}
               className="p-2.5 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-lg transition-colors border border-white/10 shadow-lg"

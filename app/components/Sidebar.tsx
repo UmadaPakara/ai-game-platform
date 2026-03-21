@@ -82,7 +82,7 @@ export default function Sidebar({ currentTab, onTabChange, isOpenMobile }: Sideb
                     </div>
                 </div>
 
-                <hr className="border-gray-100" />
+                <hr className="border-gray-800/50" />
 
                 {/* Recommended / Affiliate Section */}
                 <div>
@@ -95,7 +95,7 @@ export default function Sidebar({ currentTab, onTabChange, isOpenMobile }: Sideb
                     </div>
                 </div>
 
-                <hr className="border-gray-100" />
+                <hr className="border-gray-800/50" />
 
                 {/* Trending Section */}
                 <div>

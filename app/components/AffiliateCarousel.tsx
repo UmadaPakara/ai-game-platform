@@ -44,7 +44,7 @@ export default function AffiliateCarousel({ ads, interval = 5000 }: AffiliateCar
 
     return (
         <div
-            className="relative group overflow-hidden rounded-xl border border-gray-100 bg-white"
+            className="relative group overflow-hidden rounded-xl border border-gray-800/50 bg-black/40 backdrop-blur-md"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
@@ -69,24 +69,24 @@ export default function AffiliateCarousel({ ads, interval = 5000 }: AffiliateCar
                 <>
                     <button
                         onClick={prevSlide}
-                        className="absolute left-1 top-1/2 -translate-y-1/2 p-1 bg-white/80 backdrop-blur rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white text-gray-600 z-10"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/60 backdrop-blur-md rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-600 text-white border border-white/10 z-10"
                     >
-                        <ChevronLeft className="w-3 h-3" />
+                        <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 p-1 bg-white/80 backdrop-blur rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white text-gray-600 z-10"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-black/60 backdrop-blur-md rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-purple-600 text-white border border-white/10 z-10"
                     >
-                        <ChevronRight className="w-3 h-3" />
+                        <ChevronRight className="w-4 h-4" />
                     </button>
 
                     {/* Dots indicator */}
-                    <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                    <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                         {ads.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`w-1 h-1 rounded-full transition-all ${currentIndex === index ? "bg-indigo-600 w-2.5" : "bg-gray-300"
+                                className={`w-1.5 h-1.5 rounded-full transition-all ${currentIndex === index ? "bg-purple-500 w-3" : "bg-gray-600"
                                     }`}
                             />
                         ))}
