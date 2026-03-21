@@ -12,10 +12,10 @@ export default function PremiumPage() {
             name: "Free",
             price: "¥0",
             period: "",
-            description: language === "ja" ? "まずはここから。AIゲーム制作の基本を体験。" : "Get started with the basics of AI game creation.",
+            description: language === "ja" ? "まずはここから。AIゲーム投稿の基本を体験。" : "Get started with the basics of AI game sharing.",
             features: [
-                language === "ja" ? "毎日5回までAI生成可能" : "Up to 5 AI generations per day",
-                language === "ja" ? "標準的な生成モデル" : "Standard generation models",
+                language === "ja" ? "月間3回までゲーム投稿可能" : "Up to 3 uploads per month",
+                language === "ja" ? "標準的な共有機能" : "Standard sharing features",
                 language === "ja" ? "広告あり" : "Contains ads",
                 language === "ja" ? "基本的なサポート" : "Basic support"
             ],
@@ -26,10 +26,10 @@ export default function PremiumPage() {
             name: "Pro",
             price: "¥980",
             period: language === "ja" ? "/月" : "/mo",
-            description: language === "ja" ? "クリエイターの翼。制限なしで創作を楽しもう。" : "Wings for creators. Enjoy creation without limits.",
+            description: language === "ja" ? "クリエイターの翼。制限なしで投稿を楽しもう。" : "Wings for creators. Enjoy sharing without limits.",
             features: [
-                language === "ja" ? "生成回数無制限" : "Unlimited AI generations",
-                language === "ja" ? "最先端のAIモデル (Gemini 2.0 / Claude 3.5)" : "Advanced AI models (Gemini 2.0 / Claude 3.5)",
+                language === "ja" ? "ゲーム投稿数無制限" : "Unlimited game uploads",
+                language === "ja" ? "カスタマイズ可能なプレイヤー" : "Customizable game player",
                 language === "ja" ? "広告非表示" : "Clean, Ad-free experience",
                 language === "ja" ? "プロ専用バッジ表示" : "Exclusive Pro badge on profile",
                 language === "ja" ? "先行アクセス機能" : "Early access to new features"
@@ -56,19 +56,19 @@ export default function PremiumPage() {
 
     const benefits = [
         {
-            icon: <Zap className="w-6 h-6 text-yellow-400" />,
-            title: language === "ja" ? "高速生成" : "High-speed Generation",
-            desc: language === "ja" ? "プレミアム回線で、AIの回答待ち時間を大幅に短縮。" : "Significantly reduce AI waiting time with premium pipes."
+            icon: <Rocket className="w-6 h-6 text-purple-400" />,
+            title: language === "ja" ? "無制限アップロード" : "Unlimited Uploads",
+            desc: language === "ja" ? "投稿数の制限を気にせず、あなたの作品をいくらでも世界に公開できます。" : "Share as many creations as you want without worrying about upload limits."
         },
         {
             icon: <Shield className="w-6 h-6 text-blue-400" />,
             title: language === "ja" ? "広告なし" : "Ad-free Experience",
-            desc: language === "ja" ? "プレイ中も制作中も、邪魔な広告は一切表示されません。" : "No intrusive ads while playing or creating."
+            desc: language === "ja" ? "プレイ中も投稿中も、邪魔な広告は一切表示されません。" : "No intrusive ads while playing or uploading."
         },
         {
-            icon: <Rocket className="w-6 h-6 text-purple-400" />,
-            title: language === "ja" ? "高度なAI" : "Advanced AI",
-            desc: language === "ja" ? "より複雑で洗練されたゲームを生成できる特別なモデルを使用可能。" : "Use models capable of generating more complex and refined games."
+            icon: <Sparkles className="w-6 h-6 text-yellow-400" />,
+            title: language === "ja" ? "プレミアムプレイヤー" : "Premium Player",
+            desc: language === "ja" ? "プロ専用のデザインや、透かしなしのクリーンなプレイヤーを使用可能。" : "Use exclusive pro designs and a clean player without watermarks."
         }
     ]
 
