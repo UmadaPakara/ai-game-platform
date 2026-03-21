@@ -7,6 +7,8 @@ import html2canvas from "html2canvas"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
 import { User } from "@supabase/supabase-js"
 import { Gamepad2, GitFork, Sparkles } from "lucide-react"
+import AffiliateSlot from "../components/AffiliateSlot"
+import { getAdsByCategory } from "@/lib/affiliate"
  
 export default function Upload() {
   const router = useRouter()
@@ -350,6 +352,23 @@ export default function Upload() {
                   {language === "ja" ? "Geminiを開く" : "Open Gemini"}
                 </a>
               </div>
+            </div>
+
+            {/* 🔥 Creator Affiliate Slot */}
+            <div className="mt-2">
+              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 ml-1">{language === "ja" ? "開発を加速させるアイテム" : "Boost Your Productivity"}</h3>
+              {getAdsByCategory("CREATOR", 1).map(ad => (
+                <AffiliateSlot
+                  key={ad.title}
+                  type="sidebar"
+                  title={ad.title}
+                  description={ad.description}
+                  badge={ad.badge}
+                  link={ad.link}
+                  price={ad.price}
+                  imageUrl={ad.imageUrl}
+                />
+              ))}
             </div>
           </div>
  

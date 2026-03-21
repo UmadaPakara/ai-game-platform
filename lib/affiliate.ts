@@ -1,6 +1,16 @@
-// lib/affiliate.ts
+export type AffiliateCategory = "CREATOR" | "GEAR" | "GENRE_ACTION" | "GENRE_RPG" | "GENRE_CASUAL" | "LIFESTYLE";
 
-export const AFFILIATE_ADS = {
+export interface AffiliateAd {
+    title: string;
+    description: string;
+    badge?: string;
+    price: string;
+    link: string;
+    imageUrl: string;
+    category?: AffiliateCategory;
+}
+
+export const AFFILIATE_ADS: { sidebar: AffiliateAd[], gameDetail: { banner: AffiliateAd, sidebar: AffiliateAd } } = {
     sidebar: [
         {
             title: "iPad (第10世代)",
@@ -9,6 +19,7 @@ export const AFFILIATE_ADS = {
             price: "¥58,800",
             link: "https://amzn.to/4ucimQF",
             imageUrl: "/images/affiliate/ipad.jpg",
+            category: "CREATOR"
         },
         {
             title: "Logicool G PRO 2 LIGHTSPEED",
@@ -17,6 +28,7 @@ export const AFFILIATE_ADS = {
             price: "¥11,970",
             link: "https://amzn.to/4raGyQE",
             imageUrl: "/images/affiliate/gpro2.jpg",
+            category: "GEAR"
         },
         {
             title: "G PRO ゲーミングキーボード",
@@ -25,22 +37,7 @@ export const AFFILIATE_ADS = {
             price: "¥10,480",
             link: "https://amzn.to/4rS8KJa",
             imageUrl: "/images/affiliate/gpro_kb.jpg",
-        },
-        {
-            title: "REDMAGIC 11 Pro【日本公式】",
-            description: "冷却ファン内蔵、最強のゲーミング体験をその手に。",
-            badge: "最強スマホ",
-            price: "¥129,800",
-            link: "https://amzn.to/409mm6T",
-            imageUrl: "/images/affiliate/redmagic.jpg",
-        },
-        {
-            title: "Radeon RX 9070 XT",
-            description: "圧倒的なフレームレートで最高画質を体験。",
-            badge: "NEW",
-            price: "¥100,800",
-            link: "https://amzn.to/4lcEiXU",
-            imageUrl: "/images/affiliate/rx9070xt.jpg",
+            category: "GEAR"
         }
     ],
     gameDetail: {
@@ -51,6 +48,7 @@ export const AFFILIATE_ADS = {
             price: "¥129,800",
             link: "https://amzn.to/409mm6T",
             imageUrl: "/images/affiliate/redmagic.jpg",
+            category: "GEAR"
         },
         sidebar: {
             title: "iPad (第10世代)",
@@ -59,95 +57,105 @@ export const AFFILIATE_ADS = {
             link: "https://amzn.to/4ucimQF",
             price: "¥58,800",
             imageUrl: "/images/affiliate/ipad.jpg",
+            category: "CREATOR"
         }
     }
 };
 
-// 週次ローテーション用の商品プール (20個程度用意しておく)
-const TRENDING_POOL = [
-    {
-        title: "Razer Viper V3 Pro",
-        description: "54gの超軽量設計、次世代の35Kセンサー搭載。プロゲーマー愛用率No.1マウス。",
-        badge: "2025トレンド",
-        price: "¥26,480",
-        link: "https://amzn.to/4unynTW",
-        imageUrl: "/images/affiliate/viper_v3.jpg",
-    },
-    {
-        title: "SteelSeries Apex Pro TKL",
-        description: "世界最速レベルのレスポンスを実現する可変アクチュエーションスイッチ。",
-        badge: "最強キーボード",
-        price: "¥24,800",
-        link: "https://amzn.to/4b5P6DJ",
-        imageUrl: "/images/affiliate/apex_pro.jpg",
-    },
-    {
-        title: "Logicool G PRO X SUPERLIGHT 2",
-        description: "8Kポーリングレート対応に進化したワイヤレスマウスの完成形。",
-        badge: "人気",
-        price: "¥20,727",
-        link: "https://amzn.to/3OX8Tg7",
-        imageUrl: "/images/affiliate/superlight.jpg",
-    },
-    {
-        title: "Razer Huntsman V3 Pro TKL",
-        description: "ラピッドトリガー搭載のアナログ光スイッチ。競技シーンに最適なスピード。",
-        badge: "プロ仕様",
-        price: "¥36,980",
-        link: "https://amzn.to/4sh7TC7",
-        imageUrl: "/images/affiliate/huntsman.jpg",
-    },
-    {
-        title: "HyperX Cloud III",
-        description: "快適な着け心地と高精細な音質。耐久性抜群のベストセラーヘッドセット。",
-        badge: "快適設計",
-        price: "¥12,000",
-        link: "https://amzn.to/4lvGdHi",
-        imageUrl: "/images/affiliate/cloud3.jpg",
-    },
+const PRODUCT_POOL: AffiliateAd[] = [
+    // CREATOR
     {
         title: "Elgato Stream Deck MK.2",
-        description: "15個のカスタムキーで操作を効率化。ライブ配信や作業の必須アイテム。",
-        badge: "配信ツール",
+        description: "15個のカスタムキーで制作を効率化。AIプロンプトの呼び出しにも最適。",
+        badge: "クリエイター必携",
         price: "¥20,680",
         link: "https://amzn.to/3OWWzwm",
         imageUrl: "/images/affiliate/stream_deck.jpg",
+        category: "CREATOR"
     },
     {
-        title: "Logicool G915 TKL (G913)",
-        description: "薄型メカニカルスイッチの最高峰。高級感のあるアルミニウム外装。",
-        badge: "ハイエンド",
-        price: "¥23,000",
-        link: "https://amzn.to/4sGUC5G",
-        imageUrl: "/images/affiliate/g915.jpg",
+        title: "TourBox Elite",
+        description: "クリエイティブ作業を加速させる左手デバイス。カスタムマクロで爆速開発。",
+        badge: "作業効率UP",
+        price: "¥39,960",
+        link: "https://amzn.to/40e8G6U",
+        imageUrl: "/images/affiliate/tourbox.jpg",
+        category: "CREATOR"
+    },
+    // GENRE_ACTION
+    {
+        title: "Razer Viper V3 Pro",
+        description: "54gの超軽量設計。アクションゲームで最高のエイムを実現。",
+        badge: "プロ機材",
+        price: "¥26,480",
+        link: "https://amzn.to/4unynTW",
+        imageUrl: "/images/affiliate/viper_v3.jpg",
+        category: "GENRE_ACTION"
     },
     {
-        title: "Razer Wolverine V2 Pro",
-        description: "競技向けワイヤレスコントローラー。超高速連射とカスタマイズ性が魅力。",
-        badge: "ガチ勢向け",
+        title: "SteelSeries Apex Pro TKL",
+        description: "世界最速のレスポンス。競技系ゲームで差をつけるキーボード。",
+        badge: "最強反応",
         price: "¥24,800",
-        link: "https://amzn.to/4s7nPqz",
-        imageUrl: "/images/affiliate/wolverine.jpg",
+        link: "https://amzn.to/4b5P6DJ",
+        imageUrl: "/images/affiliate/apex_pro.jpg",
+        category: "GENRE_ACTION"
     },
-    {
-        title: "ASUS ROG Swift 360Hz",
-        description: "360Hzの超高リフレッシュレートでeスポーツの頂点を目指す。",
-        badge: "究極",
-        price: "¥89,800",
-        link: "https://amzn.to/4s8LcQB",
-        imageUrl: "/images/affiliate/rog_swift.jpg",
-    },
+    // GENRE_RPG
     {
         title: "Sony INZONE H9",
-        description: "ノイズキャンセリング搭載、立体音響ゲーミングヘッドセット。",
-        badge: "没入感",
+        description: "立体音響で世界に没入。RPGの壮大な物語を最高の音で。",
+        badge: "没入体験",
         price: "¥32,000",
         link: "https://amzn.to/4upYucN",
         imageUrl: "/images/affiliate/inzone.jpg",
+        category: "GENRE_RPG"
+    },
+    {
+        title: "ELDEN RING 公式設定画集",
+        description: "唯一無二の世界観を凝縮。創作のインスピレーション源に。",
+        badge: "ファン必見",
+        price: "¥4,400",
+        link: "https://amzn.to/4sGUC5G",
+        imageUrl: "/images/affiliate/elden_art.jpg",
+        category: "GENRE_RPG"
+    },
+    // LIFESTYLE
+    {
+        title: "Herman Miller Embody Chair",
+        description: "究極の座り心地。長時間のゲームプレイと制作を支える最高峰の椅子。",
+        badge: "一生モノ",
+        price: "¥240,000",
+        link: "https://amzn.to/4s8LcQB",
+        imageUrl: "/images/affiliate/embody.jpg",
+        category: "LIFESTYLE"
+    },
+    {
+        title: "Monster Energy 24本セット",
+        description: "徹夜のデバッグも、白熱の対戦も。アゲていくならコレ。",
+        badge: "定番",
+        price: "¥4,800",
+        link: "https://amzn.to/4lvGdHi",
+        imageUrl: "/images/affiliate/monster.jpg",
+        category: "LIFESTYLE"
     }
 ];
 
-// その週のトレンドを取得する関数
+export function getAdsByCategory(category: AffiliateCategory, count = 1): AffiliateAd[] {
+    const filtered = PRODUCT_POOL.filter(ad => ad.category === category);
+    return filtered.sort(() => Math.random() - 0.5).slice(0, count);
+}
+
+export function detectGenre(title: string, description: string): AffiliateCategory {
+    const text = (title + " " + description).toLowerCase();
+    
+    if (text.match(/rpg|ロールプレイング|冒険|物語|クエスト|ストーリー/)) return "GENRE_RPG";
+    if (text.match(/アクション|シューティング|fps|格闘|バトル|対戦|エイム/)) return "GENRE_ACTION";
+    if (text.match(/パズル|カジュアル|簡単|誰でも|ひまつぶし|ミニゲーム/)) return "GENRE_CASUAL";
+    
+    return "GEAR";
+}
+
 export function getWeeklyTrendingAds(count = 5) {
     const now = new Date();
     const WEEK_MS = 604800000;
@@ -156,7 +164,7 @@ export function getWeeklyTrendingAds(count = 5) {
         const x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     };
-    const shuffled = [...TRENDING_POOL].sort((a, b) => {
+    const shuffled = [...PRODUCT_POOL].sort((a, b) => {
         const seedA = weekNumber + a.title.length;
         const seedB = weekNumber + b.title.length;
         return randomSeed(seedA) - randomSeed(seedB);

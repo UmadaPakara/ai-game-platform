@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import { useParams, useRouter } from "next/navigation"
 import AffiliateSlot from "../../components/AffiliateSlot"
-import { AFFILIATE_ADS } from "@/lib/affiliate"
+import { AFFILIATE_ADS, detectGenre, getAdsByCategory, AffiliateAd } from "@/lib/affiliate"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
 import { Game, Comment } from "@/types"
 import { GitFork, Sparkles } from "lucide-react"
@@ -20,6 +20,7 @@ export default function GamePage() {
   const [comments, setComments] = useState<Comment[]>([])
   const [relatedGames, setRelatedGames] = useState<Game[]>([])
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
+  const [contextualAds, setContextualAds] = useState<{ banner?: AffiliateAd, sidebar?: AffiliateAd }>({})
  
   const toggleFullscreen = () => {
     if (!containerRef.current) return
@@ -129,6 +130,20 @@ export default function GamePage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, loadGame, fetchRelatedGames])
+
+  // ジャンルに応じた広告を設定
+  useEffect(() => {
+    if (game) {
+      const genre = detectGenre(game.title, game.description || "");
+      const bannerAds = getAdsByCategory(genre, 1);
+      const lifestyleAds = getAdsByCategory("LIFESTYLE", 1);
+      
+      setContextualAds({
+        banner: bannerAds[0] || AFFILIATE_ADS.gameDetail.banner,
+        sidebar: lifestyleAds[0] || AFFILIATE_ADS.gameDetail.sidebar
+      });
+    }
+  }, [game]);
  
   // フルスクリーン監視
   useEffect(() => {
@@ -294,15 +309,17 @@ export default function GamePage() {
             )}
  
             {/* 🔥 Affiliate Banner Slot */}
-            <AffiliateSlot
-              type="banner"
-              title={AFFILIATE_ADS.gameDetail.banner.title}
-              description={AFFILIATE_ADS.gameDetail.banner.description}
-              badge={AFFILIATE_ADS.gameDetail.banner.badge}
-              price={AFFILIATE_ADS.gameDetail.banner.price}
-              link={AFFILIATE_ADS.gameDetail.banner.link}
-              imageUrl={AFFILIATE_ADS.gameDetail.banner.imageUrl}
-            />
+            {contextualAds.banner && (
+              <AffiliateSlot
+                type="banner"
+                title={contextualAds.banner.title}
+                description={contextualAds.banner.description}
+                badge={contextualAds.banner.badge}
+                price={contextualAds.banner.price}
+                link={contextualAds.banner.link}
+                imageUrl={contextualAds.banner.imageUrl}
+              />
+            )}
  
             {/* Comments Area */}
             <div className="mt-4 border-t border-gray-800/50 pt-6">
@@ -370,15 +387,17 @@ export default function GamePage() {
             ))}
  
             {/* 🔥 Sidebar Affiliate Slot */}
-            <AffiliateSlot
-              type="sidebar"
-              title={AFFILIATE_ADS.gameDetail.sidebar.title}
-              description={AFFILIATE_ADS.gameDetail.sidebar.description}
-              badge={AFFILIATE_ADS.gameDetail.sidebar.badge}
-              link={AFFILIATE_ADS.gameDetail.sidebar.link}
-              price={AFFILIATE_ADS.gameDetail.sidebar.price}
-              imageUrl={AFFILIATE_ADS.gameDetail.sidebar.imageUrl}
-            />
+            {contextualAds.sidebar && (
+              <AffiliateSlot
+                type="sidebar"
+                title={contextualAds.sidebar.title}
+                description={contextualAds.sidebar.description}
+                badge={contextualAds.sidebar.badge}
+                link={contextualAds.sidebar.link}
+                price={contextualAds.sidebar.price}
+                imageUrl={contextualAds.sidebar.imageUrl}
+              />
+            )}
           </div>
         </aside>
       )}
