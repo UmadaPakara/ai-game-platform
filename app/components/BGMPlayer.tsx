@@ -15,20 +15,25 @@ export default function BGMPlayer() {
   const oscillatorsRef = useRef<any[]>([])
   const schedulerRef = useRef<number | null>(null)
   
-  const [isMuted, setIsMuted] = useState(false) // デフォルトでONに設定
+  const [isMuted, setIsMuted] = useState(false)
   const [isGamePage, setIsGamePage] = useState(false)
+  const isPlayingRef = useRef(false)
 
   // プロシージャルBGMの開始
   const startSynthesizer = () => {
-    if (oscillatorsRef.current.length > 0) return // 既に再生中なら何もしない
+    if (isPlayingRef.current) return 
+    isPlayingRef.current = true
+
+    console.log("Starting BGM Synthesizer...")
 
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+      console.log("AudioContext created:", audioCtxRef.current.state)
     }
     
     const ctx = audioCtxRef.current
     if (ctx.state === 'suspended') {
-      ctx.resume()
+      ctx.resume().then(() => console.log("AudioContext resumed"))
     }
 
     // マスターゲイン設定
@@ -38,7 +43,6 @@ export default function BGMPlayer() {
     masterGain.connect(ctx.destination)
     masterGainRef.current = masterGain
 
-    // ... (rest of the synthesizer logic remains the same)
     // 1. ノイズによるリズム（ハイハット風）
     const bufferSize = ctx.sampleRate * 0.05
     const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
@@ -75,7 +79,6 @@ export default function BGMPlayer() {
       g.connect(masterGainRef.current)
       osc.start(time)
       osc.stop(time + duration)
-      oscillatorsRef.current.push(osc)
     }
 
     const bpm = 128
@@ -87,7 +90,7 @@ export default function BGMPlayer() {
     let nextNoteTime = ctx.currentTime
 
     const scheduler = () => {
-      if (!masterGainRef.current) return
+      if (!masterGainRef.current || !isPlayingRef.current) return
       while (nextNoteTime < ctx.currentTime + 0.1) {
         if (noteIdx % 2 === 0) playNote(melody[Math.floor(noteIdx / 2) % melody.length], nextNoteTime, 0.1, 'square', 0.03)
         if (noteIdx % 4 === 0) playNote(bass[Math.floor(noteIdx / 8) % bass.length], nextNoteTime, 0.3, 'triangle', 0.06)
@@ -101,6 +104,8 @@ export default function BGMPlayer() {
   }
 
   const stopSynthesizer = () => {
+    console.log("Stopping BGM Synthesizer...")
+    isPlayingRef.current = false
     const ctx = audioCtxRef.current
     const masterGain = masterGainRef.current
     if (ctx && masterGain) {
@@ -110,8 +115,6 @@ export default function BGMPlayer() {
         schedulerRef.current = null
       }
       setTimeout(() => {
-        oscillatorsRef.current.forEach(osc => { try { osc.stop() } catch(e) {} })
-        oscillatorsRef.current = []
         masterGainRef.current = null
       }, 600)
     }
@@ -127,10 +130,13 @@ export default function BGMPlayer() {
       startSynthesizer()
     }
 
-    // ブラウザのオートプレイ制限回避のためのグローバルなインタラクション監視
     const handleInteraction = () => {
-      if (audioCtxRef.current?.state === 'suspended') {
+      console.log("User interaction detected, state:", audioCtxRef.current?.state)
+      if (!audioCtxRef.current) {
+        if (!isMuted && !isGamePage) startSynthesizer()
+      } else if (audioCtxRef.current.state === 'suspended') {
         audioCtxRef.current.resume().then(() => {
+          console.log("Resumed via interaction, playing:", !isMuted && !isGamePage)
           if (!isMuted && !isGamePage) startSynthesizer()
         })
       } else if (!isMuted && !isGamePage) {
@@ -138,12 +144,14 @@ export default function BGMPlayer() {
       }
     }
 
-    window.addEventListener('click', handleInteraction)
+    window.addEventListener('mousedown', handleInteraction)
     window.addEventListener('touchstart', handleInteraction)
+    window.addEventListener('keydown', handleInteraction)
 
     return () => {
-      window.removeEventListener('click', handleInteraction)
+      window.removeEventListener('mousedown', handleInteraction)
       window.removeEventListener('touchstart', handleInteraction)
+      window.removeEventListener('keydown', handleInteraction)
     }
   }, [pathname, isMuted])
 
