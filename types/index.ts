@@ -16,6 +16,7 @@ export interface Game {
   views: number
   created_at: string
   prompt?: string
+  is_sponsored?: boolean
   profiles?: {
     username: string
   }

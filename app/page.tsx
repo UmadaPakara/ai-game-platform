@@ -180,6 +180,9 @@ function HomeContent() {
       list.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
     }
 
+    // スポンサー枠を最上位に移動
+    list.sort((a, b) => (b.is_sponsored ? 1 : 0) - (a.is_sponsored ? 1 : 0))
+
     return list
   }, [games, sort, tab, favoriteIds])
 

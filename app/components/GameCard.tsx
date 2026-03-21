@@ -1,6 +1,6 @@
 "use client";
 
-import { Play } from "lucide-react";
+import { Play, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Game {
@@ -11,6 +11,7 @@ interface Game {
     likes?: number;
     created_at?: string;
     user_id?: string;
+    is_sponsored?: boolean;
     profiles?: { username: string } | null;
 }
 
@@ -48,6 +49,16 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-500 font-medium bg-black/40 italic backdrop-blur-sm">
                         No Image
+                    </div>
+                )}
+
+                {/* Sponsored Badge */}
+                {game.is_sponsored && (
+                    <div className="absolute top-2 left-2 z-20">
+                        <span className="px-2 py-0.5 bg-amber-600 text-white text-[10px] font-bold rounded-lg shadow-lg border border-amber-400/30 uppercase tracking-wider flex items-center gap-1">
+                            <Star className="w-2.5 h-2.5 fill-current" />
+                            Sponsored
+                        </span>
                     </div>
                 )}
 

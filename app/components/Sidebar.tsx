@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Trophy, Heart, User, PlusCircle, Star, TrendingUp, Globe, BookOpen, X } from "lucide-react";
+import { Home, Trophy, Heart, User, PlusCircle, Star, TrendingUp, Globe, BookOpen, X, Sparkles } from "lucide-react";
 import AffiliateSlot from "./AffiliateSlot";
 import AffiliateCarousel from "./AffiliateCarousel";
 import { AFFILIATE_ADS, getWeeklyTrendingAds } from "@/lib/affiliate";
@@ -45,6 +45,12 @@ export default function Sidebar({ currentTab, onTabChange, isOpenMobile }: Sideb
                     <Link href="/upload" className={getButtonClass(currentTab === "upload")}>
                         <PlusCircle className={`w-5 h-5 ${currentTab === "upload" ? "text-purple-400" : "text-gray-400"}`} />
                         <span>{t("common.upload")}</span>
+                    </Link>
+                    <Link href="/premium" className={getButtonClass(currentTab === "premium")}>
+                        <Sparkles className={`w-5 h-5 ${currentTab === "premium" ? "text-yellow-400" : "text-yellow-500"}`} />
+                        <span className="bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent font-extrabold italic">
+                            {t("common.premium")}
+                        </span>
                     </Link>
                 </div>
 

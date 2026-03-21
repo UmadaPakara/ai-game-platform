@@ -40,3 +40,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# large assets
+/VOICEVOX/
+/vrew/
+zundamon_assets.zip
+/zundamon_custom/
+/remotion/
