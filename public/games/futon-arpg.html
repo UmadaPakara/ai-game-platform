@@ -220,11 +220,11 @@
 
             // -- Player Input --
             if (!player.isAttacking) {
-                if (keys['ArrowRight']) {
+                if (keys['KeyD']) {
                     player.vx = player.speed;
                     player.dir = 1;
                     if (player.grounded) player.state = 'run';
-                } else if (keys['ArrowLeft']) {
+                } else if (keys['KeyA']) {
                     player.vx = -player.speed;
                     player.dir = -1;
                     if (player.grounded) player.state = 'run';
@@ -234,7 +234,7 @@
                 }
             }
 
-            if (keys['ArrowUp'] && player.grounded) {
+            if (keys['KeyW'] && player.grounded) {
                 player.vy = -player.jumpPower;
                 player.grounded = false;
                 player.state = 'jump';
@@ -594,7 +594,7 @@
             ctx.fillStyle = 'rgba(255,255,255,0.3)';
             ctx.font = '13px "Yu Gothic", sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('[ ← → ] 移動　[ ↑ ] ジャンプ　[ Z ] 攻撃', canvas.width / 2, canvas.height - 20);
+            ctx.fillText('[ A D ] 移動　[ W ] ジャンプ　[ Z ] 攻撃', canvas.width / 2, canvas.height - 20);
             ctx.textAlign = 'left';
 
             // -- Wave Transition --
