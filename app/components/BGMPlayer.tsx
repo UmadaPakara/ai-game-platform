@@ -6,7 +6,7 @@ import { Music, Music2, Sparkles } from "lucide-react"
 
 /**
  * サイト全体のBGMを管理するコンポーネント
- * Web Audio API を使用して「ゲームっぽい」メロディアスな音をプロシージャルに生成します
+ * Web Audio API を使用して「明るくポップ」なゲームBGMを生成します
  */
 export default function BGMPlayer() {
   const pathname = usePathname()
@@ -29,64 +29,78 @@ export default function BGMPlayer() {
       ctx.resume()
     }
 
-    // マスターゲイン設定 (フェードイン用)
+    // マスターゲイン設定
     const masterGain = ctx.createGain()
     masterGain.gain.setValueAtTime(0, ctx.currentTime)
-    masterGain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 2) 
+    masterGain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 1) 
     masterGain.connect(ctx.destination)
     masterGainRef.current = masterGain
 
-    // 1. パッド（背景音）
-    const filter = ctx.createBiquadFilter()
-    filter.type = 'lowpass'
-    filter.frequency.setValueAtTime(400, ctx.currentTime)
-    filter.connect(masterGain)
+    // 1. ノイズによるリズム（ハイハット風）
+    const bufferSize = ctx.sampleRate * 0.05
+    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+    const output = noiseBuffer.getChannelData(0)
+    for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
 
-    const freqs = [110, 164.81] // A2, E3
-    freqs.forEach(f => {
-      const osc = ctx.createOscillator()
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(f, ctx.currentTime)
-      osc.connect(filter)
-      osc.start()
-      oscillatorsRef.current.push(osc)
-    })
+    const playHihat = (time: number) => {
+      const source = ctx.createBufferSource()
+      source.buffer = noiseBuffer
+      const highpass = ctx.createBiquadFilter()
+      highpass.type = 'highpass'
+      highpass.frequency.setValueAtTime(7000, time)
+      const g = ctx.createGain()
+      g.gain.setValueAtTime(0.04, time)
+      g.gain.exponentialRampToValueAtTime(0.001, time + 0.03)
+      source.connect(highpass)
+      highpass.connect(g)
+      g.connect(masterGain)
+      source.start(time)
+    }
 
-    // 2. アルペジエイター（メロディ）
-    const playNote = (freq: number, time: number, duration: number) => {
+    // 2. メロディとベース
+    const playNote = (freq: number, time: number, duration: number, type: OscillatorType = 'square', vol = 0.08) => {
       const osc = ctx.createOscillator()
       const g = ctx.createGain()
-      
-      osc.type = 'triangle' // 少しゲームっぽい柔らかな音
+      osc.type = type
       osc.frequency.setValueAtTime(freq, time)
-      
       g.gain.setValueAtTime(0, time)
-      g.gain.linearRampToValueAtTime(0.1, time + 0.02)
+      g.gain.linearRampToValueAtTime(vol, time + 0.01)
       g.gain.exponentialRampToValueAtTime(0.001, time + duration)
-      
       osc.connect(g)
       g.connect(masterGain)
-      
       osc.start(time)
       osc.stop(time + duration)
     }
 
-    const melody = [440, 523.25, 659.25, 783.99] // A4, C5, E5, G5
+    const bpm = 128
+    const step = 60 / bpm / 2 // 8分音符
+    const melody = [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33] // C5, D5, E5, G5, A5...
+    const bass = [130.81, 196.00, 146.83, 220.00] // C3, G3, D3, A3
+    
     let noteIdx = 0
     let nextNoteTime = ctx.currentTime
 
     const scheduler = () => {
       while (nextNoteTime < ctx.currentTime + 0.1) {
-        playNote(melody[noteIdx % melody.length], nextNoteTime, 0.25)
+        // メロディ (16分音符)
+        if (noteIdx % 2 === 0) {
+          playNote(melody[Math.floor(noteIdx / 2) % melody.length], nextNoteTime, 0.1, 'square', 0.04)
+        }
+        // ベース (8分音符)
+        if (noteIdx % 4 === 0) {
+          playNote(bass[Math.floor(noteIdx / 8) % bass.length], nextNoteTime, 0.3, 'triangle', 0.08)
+        }
+        // リズム (8分音符)
+        if (noteIdx % 2 === 0) playHihat(nextNoteTime)
+
         noteIdx++
-        nextNoteTime += 0.25 // 16分音符的なスピード
+        nextNoteTime += step
       }
       schedulerRef.current = requestAnimationFrame(scheduler)
     }
     scheduler()
   }
 
-  // BGMの停止
   const stopSynthesizer = () => {
     const ctx = audioCtxRef.current
     const masterGain = masterGainRef.current
@@ -103,33 +117,24 @@ export default function BGMPlayer() {
   useEffect(() => {
     const isGame = pathname.startsWith("/game/")
     setIsGamePage(isGame)
-
-    if (isGame) {
-      stopSynthesizer()
-    } else if (!isMuted) {
-      startSynthesizer()
-    }
+    if (isGame) stopSynthesizer()
+    else if (!isMuted) startSynthesizer()
   }, [pathname, isMuted])
 
   const toggleMute = () => {
-    if (isMuted) {
-      startSynthesizer()
-      setIsMuted(false)
-    } else {
-      stopSynthesizer()
-      setIsMuted(true)
-    }
+    if (isMuted) { startSynthesizer(); setIsMuted(false); }
+    else { stopSynthesizer(); setIsMuted(true); }
   }
 
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 pointer-events-none">
       <div className={`px-4 py-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl text-[11px] font-bold text-white/90 transition-all duration-700 shadow-2xl flex items-center gap-3 transform ${isMuted || isGamePage ? 'translate-x-10 opacity-0' : 'translate-x-0 opacity-100'}`}>
-        <div className="flex gap-[2px] items-end h-3">
-          <div className="w-1 bg-purple-400 animate-[music-bar_0.5s_infinite_ease-in-out]" style={{ animationDelay: '0s' }} />
-          <div className="w-1 bg-purple-400 animate-[music-bar_0.5s_infinite_ease-in-out]" style={{ animationDelay: '0.1s' }} />
-          <div className="w-1 bg-purple-400 animate-[music-bar_0.5s_infinite_ease-in-out]" style={{ animationDelay: '0.2s' }} />
+        <div className="flex gap-[3px] items-end h-3">
+          <div className="w-1.5 bg-yellow-400 animate-[music-bar_0.3s_infinite_ease-in-out]" style={{ animationDelay: '0s' }} />
+          <div className="w-1.5 bg-yellow-400 animate-[music-bar_0.3s_infinite_ease-in-out]" style={{ animationDelay: '0.1s' }} />
+          <div className="w-1.5 bg-yellow-400 animate-[music-bar_0.3s_infinite_ease-in-out]" style={{ animationDelay: '0.2s' }} />
         </div>
-        <span className="tracking-wider">GAME BGM ON</span>
+        <span className="tracking-tighter">POP BGM ACTIVE</span>
       </div>
 
       <button
@@ -140,16 +145,16 @@ export default function BGMPlayer() {
             ? 'bg-gray-900/40 border-white/5 text-gray-600 scale-90' 
             : isMuted 
               ? 'bg-black/60 border-white/10 text-white/30 hover:text-white/70' 
-              : 'bg-gradient-to-br from-indigo-600 to-purple-600 border-white/20 text-white shadow-[0_10px_40px_rgba(139,92,246,0.4)] hover:scale-110'
+              : 'bg-gradient-to-br from-yellow-400 to-orange-500 border-white/40 text-black shadow-[0_10px_40px_rgba(250,204,21,0.5)] hover:scale-110 active:scale-95'
         }`}
       >
-        {isMuted || isGamePage ? <Music2 className="w-6 h-6 outline-none" /> : <Music className="w-6 h-6 animate-pulse" />}
+        {isMuted || isGamePage ? <Music2 className="w-6 h-6" /> : <Music className="w-6 h-6 animate-bounce" />}
       </button>
 
       <style jsx global>{`
         @keyframes music-bar {
           0%, 100% { height: 4px; }
-          50% { height: 12px; }
+          50% { height: 14px; }
         }
       `}</style>
     </div>
