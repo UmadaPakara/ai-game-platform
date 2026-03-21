@@ -36,21 +36,6 @@ export default function PremiumPage() {
             ],
             buttonText: language === "ja" ? "Proにアップグレード" : "Upgrade to Pro",
             highlight: true
-        },
-        {
-            name: "Business",
-            price: "¥4,980",
-            period: language === "ja" ? "/月" : "/mo",
-            description: language === "ja" ? "ビジネスと教育に。チームでの制作を支援。" : "For business and education. Support team creation.",
-            features: [
-                language === "ja" ? "Proの全機能" : "All Pro features included",
-                language === "ja" ? "独自ドメイン公開" : "Custom domain publishing",
-                language === "ja" ? "APIアクセス" : "API access for developers",
-                language === "ja" ? "優先的な技術サポート" : "Priority technical support",
-                language === "ja" ? "メンバー管理機能" : "Team member management"
-            ],
-            buttonText: language === "ja" ? "お問い合わせ" : "Contact Sales",
-            highlight: false
         }
     ]
 
