@@ -159,18 +159,30 @@ export default function Upload() {
       }
  
       // 🔹 ゲーム投稿（user_id付き）
-      const { error: insertError } = await supabase.from("games").insert([
-        {
-          title,
-          description,
-          html_code: htmlCode,
-          thumbnail: thumbnailUrl,
-          user_id: user.id,
-          likes: 0,
-          views: 0,
-          prompt: prompt || null
-        }
-      ])
+      const insertData: any = {
+        title,
+        description,
+        html_code: htmlCode,
+        thumbnail: thumbnailUrl,
+        user_id: user.id,
+        likes: 0,
+        views: 0,
+      }
+      
+      if (prompt) {
+        insertData.prompt = prompt
+      }
+
+      let { error: insertError } = await supabase.from("games").insert([insertData])
+
+      // promptカラムが存在しない場合のエラーフォールバック
+      if (insertError && (insertError.message.includes("prompt") || insertError.code === "PGRST204")) {
+        console.warn("Prompt column missing, retrying without prompt field")
+        const fallbackData = { ...insertData }
+        delete fallbackData.prompt
+        const { error: retryError } = await supabase.from("games").insert([fallbackData])
+        insertError = retryError
+      }
  
       if (insertError) throw insertError
  
