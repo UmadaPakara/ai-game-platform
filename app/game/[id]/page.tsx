@@ -30,7 +30,8 @@ export default function GamePage() {
     if (isFullscreen) {
       // Exit fullscreen mode
       setIsFullscreen(false)
-      document.body.style.overflow = "auto"
+      document.body.style.overflow = ""
+      document.documentElement.style.overflow = ""
       
       try {
         if (isNativeFullscreen) {
@@ -47,14 +48,15 @@ export default function GamePage() {
       // Enter fullscreen mode (Always visibly change UI first so mobile browsers immediately fall back if native fails silently)
       setIsFullscreen(true)
       document.body.style.overflow = "hidden"
+      document.documentElement.style.overflow = "hidden"
       
       try {
         if (containerRef.current.requestFullscreen) {
           const p = containerRef.current.requestFullscreen()
-          if (p && p.catch) p.catch(() => {})
+          if (p && (p as any).catch) (p as any).catch(() => {})
         } else if ((containerRef.current as any).webkitRequestFullscreen) {
           const p = (containerRef.current as any).webkitRequestFullscreen()
-          if (p && p.catch) p.catch(() => {})
+          if (p && (p as any).catch) (p as any).catch(() => {})
         }
       } catch (err) {
         console.warn("Fullscreen API failed, staying in fallback mode:", err)
@@ -180,8 +182,25 @@ export default function GamePage() {
   useEffect(() => {
     const handleChange = () => {
       const isNative = !!(document.fullscreenElement || (document as any).webkitFullscreenElement)
-      setIsFullscreen(isNative)
-      document.body.style.overflow = isNative ? "hidden" : "auto"
+      if (isNative) {
+        setIsFullscreen(true)
+        document.body.style.overflow = "hidden"
+        document.documentElement.style.overflow = "hidden"
+      } else if (!isNative && !isFullscreen) {
+        // Only reset if we are not in pseudo-fullscreen mode
+        // Wait, if we WERE in native and we just exited, we want to clear everything.
+        // If we are in pseudo-mode, isNative is already false.
+        // So we need to know if we just exited native.
+      }
+      
+      // Let's simplify: if native is false AND the event fired, it means someone exited native.
+      if (!isNative) {
+        // If we are in pseudo mode, we might want to stay in pseudo mode? 
+        // No, typically if native exists and we exit it, we want to exit entirely.
+        setIsFullscreen(false)
+        document.body.style.overflow = ""
+        document.documentElement.style.overflow = ""
+      }
     }
  
     document.addEventListener("fullscreenchange", handleChange)
@@ -254,10 +273,14 @@ export default function GamePage() {
         {/* Play Area Wrapper */}
         <div
           ref={containerRef}
-          className={`w-full bg-black rounded-xl overflow-hidden shadow-2xl relative group transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 rounded-none flex items-center justify-center' : ''}`}
+          className={`w-full bg-black rounded-xl overflow-hidden shadow-2xl group transition-all duration-300 ${
+            isFullscreen 
+              ? 'fixed inset-0 z-[9999] rounded-none flex items-center justify-center bg-black' 
+              : 'relative'
+          }`}
           style={{ aspectRatio: isFullscreen ? 'auto' : aspect }}
         >
-          <div className="absolute top-4 right-4 z-10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+          <div className={`absolute top-4 right-4 z-[10000] transition-opacity ${isFullscreen ? 'opacity-100' : 'opacity-100 lg:opacity-0 lg:group-hover:opacity-100'}`}>
             <button
               onClick={toggleFullscreen}
               className="p-2.5 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-lg transition-colors border border-white/10 shadow-lg"
@@ -281,7 +304,7 @@ export default function GamePage() {
               </style>
               ${game.html_code}
             `}
-            className={`${isFullscreen ? 'w-screen h-screen' : 'w-full h-full'} border-none`}
+            className={`${isFullscreen ? 'w-screen h-[100dvh]' : 'w-full h-full'} border-none`}
             sandbox="allow-scripts allow-pointer-lock"
             allowFullScreen
           />
