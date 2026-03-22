@@ -22,12 +22,34 @@ export default function GamePage() {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
   const [contextualAds, setContextualAds] = useState<{ banner?: AffiliateAd, sidebar?: AffiliateAd }>({})
  
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
     if (!containerRef.current) return
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen()
-    } else {
-      document.exitFullscreen()
+    
+    const isNativeFullscreen = !!(document.fullscreenElement || (document as any).webkitFullscreenElement)
+    
+    try {
+      if (isFullscreen) {
+        if (isNativeFullscreen) {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen()
+          } else if ((document as any).webkitExitFullscreen) {
+            await (document as any).webkitExitFullscreen()
+          }
+        } else {
+          setIsFullscreen(false)
+        }
+      } else {
+        if (containerRef.current.requestFullscreen) {
+          await containerRef.current.requestFullscreen()
+        } else if ((containerRef.current as any).webkitRequestFullscreen) {
+          await (containerRef.current as any).webkitRequestFullscreen()
+        } else {
+          setIsFullscreen(true)
+        }
+      }
+    } catch (err) {
+      console.warn("Fullscreen API failed, using fallback:", err)
+      setIsFullscreen(!isFullscreen)
     }
   }
  
@@ -148,12 +170,15 @@ export default function GamePage() {
   // フルスクリーン監視
   useEffect(() => {
     const handleChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
+      setIsFullscreen(!!(document.fullscreenElement || (document as any).webkitFullscreenElement))
     }
  
     document.addEventListener("fullscreenchange", handleChange)
-    return () =>
+    document.addEventListener("webkitfullscreenchange", handleChange)
+    return () => {
       document.removeEventListener("fullscreenchange", handleChange)
+      document.removeEventListener("webkitfullscreenchange", handleChange)
+    }
   }, [])
  
   // フルスクリーン切り替え時に子要素へリサイズイベントを通知
