@@ -27,29 +27,38 @@ export default function GamePage() {
     
     const isNativeFullscreen = !!(document.fullscreenElement || (document as any).webkitFullscreenElement)
     
-    try {
-      if (isFullscreen) {
+    if (isFullscreen) {
+      // Exit fullscreen mode
+      setIsFullscreen(false)
+      document.body.style.overflow = "auto"
+      
+      try {
         if (isNativeFullscreen) {
           if (document.exitFullscreen) {
             await document.exitFullscreen()
           } else if ((document as any).webkitExitFullscreen) {
             await (document as any).webkitExitFullscreen()
           }
-        } else {
-          setIsFullscreen(false)
         }
-      } else {
-        if (containerRef.current.requestFullscreen) {
-          await containerRef.current.requestFullscreen()
-        } else if ((containerRef.current as any).webkitRequestFullscreen) {
-          await (containerRef.current as any).webkitRequestFullscreen()
-        } else {
-          setIsFullscreen(true)
-        }
+      } catch (err) {
+        console.warn("Fullscreen exit failed:", err)
       }
-    } catch (err) {
-      console.warn("Fullscreen API failed, using fallback:", err)
-      setIsFullscreen(!isFullscreen)
+    } else {
+      // Enter fullscreen mode (Always visibly change UI first so mobile browsers immediately fall back if native fails silently)
+      setIsFullscreen(true)
+      document.body.style.overflow = "hidden"
+      
+      try {
+        if (containerRef.current.requestFullscreen) {
+          const p = containerRef.current.requestFullscreen()
+          if (p && p.catch) p.catch(() => {})
+        } else if ((containerRef.current as any).webkitRequestFullscreen) {
+          const p = (containerRef.current as any).webkitRequestFullscreen()
+          if (p && p.catch) p.catch(() => {})
+        }
+      } catch (err) {
+        console.warn("Fullscreen API failed, staying in fallback mode:", err)
+      }
     }
   }
  
@@ -170,7 +179,9 @@ export default function GamePage() {
   // フルスクリーン監視
   useEffect(() => {
     const handleChange = () => {
-      setIsFullscreen(!!(document.fullscreenElement || (document as any).webkitFullscreenElement))
+      const isNative = !!(document.fullscreenElement || (document as any).webkitFullscreenElement)
+      setIsFullscreen(isNative)
+      document.body.style.overflow = isNative ? "hidden" : "auto"
     }
  
     document.addEventListener("fullscreenchange", handleChange)
