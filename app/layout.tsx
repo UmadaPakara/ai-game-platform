@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 });
 import ParticleBackground from "./components/ParticleBackground";
 
+/**
+ * アプリケーションのメタデータ設定
+ * SEO用のタイトル、説明、およびOGP（Open Graph Protocol）設定を定義します。
+ */
 export const metadata: Metadata = {
   title: "GameTube - AI Game Platform",
   description: "Play, create, and share AI-generated web games",
@@ -26,6 +30,10 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * ルートレイアウト・コンポーネント
+ * アプリケーション全体のHTML構造、フォント、背景、共有プロバイダーを管理します。
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,17 +44,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-gray-100 min-h-screen font-sans relative`}
       >
-        {/* Fixed Background Image */}
+        {/* 🔹 固定背景画像とオーバーレイ */}
         <div 
           className="fixed inset-0 z-[-2] bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/images/ai_bg_purple.png')" }}
         >
-          {/* Dark Overlay for Readability */}
+          {/* 視認性向上のためのダークオーバーレイとブラー */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
         </div>
         
+        {/* 🔹 パーティクル演出の背面配置 */}
         <ParticleBackground />
 
+        {/* 🔹 多言語対応、サスペンス、クライアント側レイアウトのラップ */}
         <LanguageProvider>
           <Suspense fallback={null}>
             <ClientLayout>{children}</ClientLayout>

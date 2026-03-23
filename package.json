@@ -7,12 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "remotion": "remotion studio",
-    "remotion:render": "remotion render remotion/Root.tsx AIShortVideo ../Desktop/動画/out.mp4",
-    "remotion:render:new": "remotion render remotion/Root.tsx LiveActionShort ../Desktop/動画/live_action_short.mp4",
-    "remotion:render:new-promo": "remotion render remotion/Root.tsx NewPromoVideo ../Desktop/動画/new_promo_video.mp4",
-    "remotion:render:shorts-v2": "remotion render remotion/Root.tsx ShortsVideoV2 ../Desktop/動画/shorts_v2.mp4",
-    "remotion:render:final": "remotion render remotion/Root.tsx FinalShortsVideo ../Desktop/動画/final_shorts_video.mp4"
+    "remotion": "remotion studio -c production/remotion/Root.tsx --location=C:/Users/hirom/Desktop/production/remotion"
   },
   "dependencies": {
     "@remotion/bundler": "latest",

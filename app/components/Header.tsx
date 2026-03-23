@@ -10,11 +10,21 @@ type HeaderProps = {
     onMenuToggle?: () => void;
 };
 
+/**
+ * ヘッダーコンポーネント
+ * サイトロゴ、検索バー、言語切り替え、通知、認証ボタンを含むグローバルなナビゲーション。
+ * 
+ * @param onMenuToggle モバイル用サイドメニューの開閉ハンドル
+ */
 export default function Header({ onMenuToggle }: HeaderProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
     const { language, setLanguage, t } = useLanguage();
 
+    /**
+     * 検索実行時のハンドラ
+     * 検索クエリをURLパラメータ (?q=...) に追加してトップページへ遷移します。
+     */
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -26,7 +36,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
 
     return (
         <header className="fixed top-0 left-0 right-0 h-16 bg-black/40 backdrop-blur-md border-b border-gray-800/50 z-50 flex items-center justify-between px-4">
-            {/* Left: Logo and Menu */}
+            {/* 左側: ロゴとメニューボタン */}
             <div className="flex items-center gap-4">
                 <button 
                     onClick={onMenuToggle}
@@ -43,7 +53,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                 </div>
             </div>
 
-            {/* Center: Search */}
+            {/* 中央: 検索バー (デスクトップ版) */}
             <div className="flex-1 max-w-2xl px-4 flex justify-center hidden sm:flex">
                 <form
                     onSubmit={handleSearch}
@@ -65,11 +75,13 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                 </form>
             </div>
 
-            {/* Right: Actions */}
+            {/* 右側: アクションアイテム */}
             <div className="flex items-center gap-2 sm:gap-4">
+                {/* モバイル用検索ボタン */}
                 <button className="p-2 sm:hidden hover:bg-white/10 rounded-full">
                     <Search className="w-5 h-5 text-gray-300" />
                 </button>
+                {/* 言語切り替えボタン */}
                 <button 
                     onClick={() => setLanguage(language === "ja" ? "en" : "ja")}
                     className="p-2 hover:bg-white/10 rounded-full text-gray-300 flex items-center gap-1 transition-colors border border-gray-700/50 sm:border-0"
@@ -77,9 +89,11 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                     <Globe className="w-5 h-5" />
                     <span className="text-xs font-bold hidden sm:block">{language === "ja" ? "EN" : "JP"}</span>
                 </button>
+                {/* 通知ボタン */}
                 <button className="p-2 hover:bg-white/10 rounded-full hidden sm:block">
                     <Bell className="w-6 h-6 text-gray-300" />
                 </button>
+                {/* ログイン/プロフィールボタン */}
                 <AuthButton />
             </div>
         </header>

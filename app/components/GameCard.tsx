@@ -3,6 +3,9 @@
 import { Play, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+/**
+ * ゲームデータの型定義
+ */
 interface Game {
     id: string;
     title: string;
@@ -15,9 +18,17 @@ interface Game {
     profiles?: { username: string } | null;
 }
 
+/**
+ * ゲームカードコンポーネント
+ * ホーム画面や一覧画面で、各ゲームの概要（サムネイル、タイトル、投稿者など）を表示します。
+ * 
+ * @param game ゲームデータ（undefinedの場合は読み込み中として表示）
+ * @param isLoading 読み込み中フラグ
+ */
 export default function GameCard({ game, isLoading }: { game?: Game, isLoading?: boolean }) {
     const router = useRouter();
 
+    // 読み込み中またはデータがない場合はスケルトンスクリーンを表示
     if (isLoading || !game) {
         return (
             <div className="flex flex-col gap-3 animate-pulse">
@@ -38,7 +49,7 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
             className="group flex flex-col gap-3 cursor-pointer"
             onClick={() => router.push(`/game/${game.id}`)}
         >
-            {/* Thumbnail Area */}
+            {/* サムネイルエリア */}
             <div className="relative w-full aspect-video bg-white/5 rounded-xl overflow-hidden shadow-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all border border-gray-800/50">
                 {game.thumbnail ? (
                     <img
@@ -52,7 +63,7 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
                     </div>
                 )}
 
-                {/* Sponsored Badge */}
+                {/* スポンサー（おすすめ）枠のバッジ */}
                 {game.is_sponsored && (
                     <div className="absolute top-2 left-2 z-20">
                         <span className="px-2 py-0.5 bg-amber-600 text-white text-[10px] font-bold rounded-lg shadow-lg border border-amber-400/30 uppercase tracking-wider flex items-center gap-1">
@@ -62,7 +73,7 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
                     </div>
                 )}
 
-                {/* Play Icon Overlay */}
+                {/* ホバー時に表示される再生アイコンオーバーレイ */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-purple-900/20 transition-colors flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 bg-purple-600/90 p-3 rounded-full backdrop-blur-md shadow-[0_0_20px_purple]">
                         <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
@@ -70,9 +81,9 @@ export default function GameCard({ game, isLoading }: { game?: Game, isLoading?:
                 </div>
             </div>
 
-            {/* Info Area */}
+            {/* 情報表示エリア */}
             <div className="flex gap-3 px-1">
-                {/* Creator Avatar - YouTube style */}
+                {/* 投稿者のアバター（名前の頭文字） */}
                 <div className="w-9 h-9 mt-0.5 rounded-full bg-purple-500/20 flex-shrink-0 flex items-center justify-center text-purple-300 font-bold text-sm border border-purple-500/30 shadow-inner">
                     {(game.profiles?.username || game.title).charAt(0)}
                 </div>

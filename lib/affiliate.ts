@@ -1,15 +1,31 @@
+/**
+ * アフィリエイト広告のカテゴリ定義
+ * CREATOR: 開発者向け機材
+ * GEAR: ゲーミングデバイス
+ * GENRE_ACTION: アクションゲーム関連
+ * GENRE_RPG: RPG関連
+ * GENRE_CASUAL: カジュアルゲーム関連
+ * LIFESTYLE: 飲料・家具などのライフスタイル
+ */
 export type AffiliateCategory = "CREATOR" | "GEAR" | "GENRE_ACTION" | "GENRE_RPG" | "GENRE_CASUAL" | "LIFESTYLE";
 
+/**
+ * 広告データのインターフェース
+ */
 export interface AffiliateAd {
-    title: string;
-    description: string;
-    badge?: string;
-    price: string;
-    link: string;
-    imageUrl: string;
-    category?: AffiliateCategory;
+    title: string;       // 商品名
+    description: string; // 商品説明
+    badge?: string;      // 「おすすめ」などのバッジテキスト
+    price: string;       // 価格
+    link: string;        // アフィリエイトリンク
+    imageUrl: string;    // 商品画像のパス
+    category?: AffiliateCategory; // カテゴリ
 }
 
+/**
+ * 固定枠用のアドバタイズ設定
+ * サイドバーやゲーム詳細画面の特定の場所に表示される広告。
+ */
 export const AFFILIATE_ADS: { sidebar: AffiliateAd[], gameDetail: { banner: AffiliateAd, sidebar: AffiliateAd } } = {
     sidebar: [
         {
@@ -62,8 +78,11 @@ export const AFFILIATE_ADS: { sidebar: AffiliateAd[], gameDetail: { banner: Affi
     }
 };
 
+/**
+ * 動的に抽出される商品プール
+ */
 const PRODUCT_POOL: AffiliateAd[] = [
-    // CREATOR
+    // CREATOR: 開発効率を上げるデバイス
     {
         title: "Elgato Stream Deck MK.2",
         description: "15個のカスタムキーで制作を効率化。AIプロンプトの呼び出しにも最適。",
@@ -82,7 +101,7 @@ const PRODUCT_POOL: AffiliateAd[] = [
         imageUrl: "/images/affiliate/tourbox.jpg",
         category: "CREATOR"
     },
-    // GENRE_ACTION
+    // GENRE_ACTION: アクション/FPS向け
     {
         title: "Razer Viper V3 Pro",
         description: "54gの超軽量設計。アクションゲームで最高のエイムを実現。",
@@ -101,7 +120,7 @@ const PRODUCT_POOL: AffiliateAd[] = [
         imageUrl: "/images/affiliate/apex_pro.jpg",
         category: "GENRE_ACTION"
     },
-    // GENRE_RPG
+    // GENRE_RPG: 没入感を高める
     {
         title: "Sony INZONE H9",
         description: "立体音響で世界に没入。RPGの壮大な物語を最高の音で。",
@@ -120,7 +139,7 @@ const PRODUCT_POOL: AffiliateAd[] = [
         imageUrl: "/images/affiliate/elden_art.jpg",
         category: "GENRE_RPG"
     },
-    // LIFESTYLE
+    // LIFESTYLE: 長時間の作業・プレイをサポート
     {
         title: "Herman Miller Embody Chair",
         description: "究極の座り心地。長時間のゲームプレイと制作を支える最高峰の椅子。",
@@ -141,34 +160,61 @@ const PRODUCT_POOL: AffiliateAd[] = [
     }
 ];
 
+/**
+ * カテゴリに基づいて広告をランダムに取得する
+ * @param category 対象のカテゴリ
+ * @param count 取得する件数
+ * @returns 広告データの配列
+ */
 export function getAdsByCategory(category: AffiliateCategory, count = 1): AffiliateAd[] {
     const filtered = PRODUCT_POOL.filter(ad => ad.category === category);
     return filtered.sort(() => Math.random() - 0.5).slice(0, count);
 }
 
+/**
+ * ゲームのタイトルや説明文からジャンル（広告カテゴリ）を判定する
+ * 簡易的なキーワードマッチングを行っています。
+ * @param title ゲームタイトル
+ * @param description ゲームの説明文
+ * @returns 判定されたアフィリエイトカテゴリ
+ */
 export function detectGenre(title: string, description: string): AffiliateCategory {
     const text = (title + " " + description).toLowerCase();
     
+    // RPG判定キーワード
     if (text.match(/rpg|ロールプレイング|冒険|物語|クエスト|ストーリー/)) return "GENRE_RPG";
+    // アクション/FPS判定キーワード
     if (text.match(/アクション|シューティング|fps|格闘|バトル|対戦|エイム/)) return "GENRE_ACTION";
+    // カジュアル判定キーワード
     if (text.match(/パズル|カジュアル|簡単|誰でも|ひまつぶし|ミニゲーム/)) return "GENRE_CASUAL";
     
+    // デフォルトは汎用デバイスカテゴリ
     return "GEAR";
 }
 
+/**
+ * 今週のトレンド広告を取得する（週替わりで内容が固定されるシミュレーション）
+ * 日時をシード値として使用し、その週の間は同じ順序でシャッフルされます。
+ * @param count 取得件数
+ * @returns シャッフルされた広告配列
+ */
 export function getWeeklyTrendingAds(count = 5) {
     const now = new Date();
     const WEEK_MS = 604800000;
     const weekNumber = Math.floor(now.getTime() / WEEK_MS);
+    
+    // 簡易的なシード付き乱数
     const randomSeed = (seed: number) => {
         const x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     };
+
     const shuffled = [...PRODUCT_POOL].sort((a, b) => {
         const seedA = weekNumber + a.title.length;
         const seedB = weekNumber + b.title.length;
         return randomSeed(seedA) - randomSeed(seedB);
     });
+
     return shuffled.slice(0, count);
 }
 // Clean build signal: 2026-03-13 03:05

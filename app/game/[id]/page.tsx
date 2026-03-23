@@ -1,7 +1,6 @@
 "use client"
  
 import { useEffect, useState, useRef, useCallback } from "react"
-import { createPortal } from "react-dom"
 import { supabase } from "@/lib/supabase"
 import { useParams, useRouter } from "next/navigation"
 import AffiliateSlot from "../../components/AffiliateSlot"
@@ -23,19 +22,24 @@ export default function GamePage() {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
   const [contextualAds, setContextualAds] = useState<{ banner?: AffiliateAd, sidebar?: AffiliateAd }>({})
  
+  /**
+   * フルスクリーンの切り替え処理
+   * iPhone (iOS Safari) は標準の Fullscreen API をサポートしていないため、
+   * CSS クラスの切り替えによる「擬似フルスクリーン」を優先的に使用します。
+   */
   const toggleFullscreen = async () => {
     if (!containerRef.current) return
     
-    const isNativeFullscreen = !!(document.fullscreenElement || (document as any).webkitFullscreenElement)
-    
     if (isFullscreen) {
-      // Exit fullscreen mode
+      // 🔹 フルスクリーン解除
       setIsFullscreen(false)
       document.body.style.overflow = ""
       document.documentElement.style.overflow = ""
+      document.body.style.touchAction = ""
       
       try {
-        if (isNativeFullscreen) {
+        const isNative = !!(document.fullscreenElement || (document as any).webkitFullscreenElement)
+        if (isNative) {
           if (document.exitFullscreen) {
             await document.exitFullscreen()
           } else if ((document as any).webkitExitFullscreen) {
@@ -46,21 +50,22 @@ export default function GamePage() {
         console.warn("Fullscreen exit failed:", err)
       }
     } else {
-      // Enter fullscreen mode (Always visibly change UI first so mobile browsers immediately fall back if native fails silently)
+      // 🔹 フルスクリーン開始
       setIsFullscreen(true)
+      // iOS Safari でのスクロールを確実に止めるための処理
       document.body.style.overflow = "hidden"
       document.documentElement.style.overflow = "hidden"
+      document.body.style.touchAction = "none" 
       
       try {
+        // ネイティブ API が使える場合は呼び出す（デスクトップ/Android向）
         if (containerRef.current.requestFullscreen) {
-          const p = containerRef.current.requestFullscreen()
-          if (p && (p as any).catch) (p as any).catch(() => {})
+          await containerRef.current.requestFullscreen()
         } else if ((containerRef.current as any).webkitRequestFullscreen) {
-          const p = (containerRef.current as any).webkitRequestFullscreen()
-          if (p && (p as any).catch) (p as any).catch(() => {})
+          await (containerRef.current as any).webkitRequestFullscreen()
         }
       } catch (err) {
-        console.warn("Fullscreen API failed, staying in fallback mode:", err)
+        console.warn("Native Fullscreen API failed, staying in pseudo-mode:", err)
       }
     }
   }
@@ -196,11 +201,10 @@ export default function GamePage() {
       
       // Let's simplify: if native is false AND the event fired, it means someone exited native.
       if (!isNative) {
-        // If we are in pseudo mode, we might want to stay in pseudo mode? 
-        // No, typically if native exists and we exit it, we want to exit entirely.
         setIsFullscreen(false)
         document.body.style.overflow = ""
         document.documentElement.style.overflow = ""
+        document.body.style.touchAction = ""
       }
     }
  
@@ -274,21 +278,29 @@ export default function GamePage() {
         {/* Play Area Wrapper */}
         <div
           ref={containerRef}
-          className={`w-full bg-black rounded-xl overflow-hidden shadow-2xl relative group transition-all duration-300`}
-          style={{ aspectRatio: aspect }}
+          className={`w-full bg-black rounded-xl overflow-hidden shadow-2xl relative group transition-all duration-300 ${isFullscreen ? 'pseudo-fullscreen' : ''}`}
+          style={!isFullscreen ? { aspectRatio: aspect } : {}}
         >
-          <div className="absolute top-4 right-4 z-10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+          {/* フルスクリーン切り替えボタン */}
+          <div className={`absolute top-4 right-4 z-[100000] ${isFullscreen ? 'opacity-100' : 'opacity-100 lg:opacity-0 lg:group-hover:opacity-100'} transition-opacity`}>
             <button
               onClick={toggleFullscreen}
-              className="p-2.5 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-lg transition-colors border border-white/10 shadow-lg"
-              title={t("game.fullscreen")}
+              className={`p-2.5 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-lg transition-colors border border-white/10 shadow-lg ${isFullscreen ? 'bg-white/10 p-3 rounded-full hover:bg-white/20' : ''}`}
+              title={isFullscreen ? t("common.close") : t("game.fullscreen")}
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-              </svg>
+              {isFullscreen ? (
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              )}
             </button>
           </div>
           <iframe
+            ref={iframeRef}
             srcDoc={`
               <style>
                 html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #000; }
@@ -296,42 +308,11 @@ export default function GamePage() {
               </style>
               ${game.html_code}
             `}
-            className="w-full h-full border-none"
+            className={`w-full h-full border-none ${isFullscreen ? 'fullscreen-iframe' : ''}`}
             sandbox="allow-scripts allow-pointer-lock"
             allowFullScreen
           />
         </div>
-
-        {/* Portal for Fullscreen */}
-        {isFullscreen && typeof document !== 'undefined' && createPortal(
-          <div className="fullscreen-portal">
-            <div className="absolute top-4 right-4 z-[2147483647]">
-              <button
-                onClick={toggleFullscreen}
-                className="p-3 bg-white/20 hover:bg-white/30 backdrop-blur-xl text-white rounded-full transition-all border border-white/20 shadow-2xl active:scale-90 flex items-center justify-center"
-                title={t("common.close") || "Close"}
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <iframe
-              ref={iframeRef}
-              srcDoc={`
-                <style>
-                  html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #000; }
-                  canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
-                </style>
-                ${game.html_code}
-              `}
-              className="w-full h-full border-none"
-              sandbox="allow-scripts allow-pointer-lock"
-              allowFullScreen
-            />
-          </div>,
-          document.body
-        )}
  
         {/* Info Area */}
         {!isFullscreen && (

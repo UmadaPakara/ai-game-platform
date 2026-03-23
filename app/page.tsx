@@ -11,6 +11,10 @@ import { Gamepad2, Trophy, Lock } from "lucide-react"
 
 import AILoadingSpinner from "./components/AILoadingSpinner"
 
+/**
+ * メインコンテンツ・コンポーネント
+ * Supabase と連携し、ゲーム一覧の表示、お気に入り機能、プロフィールの管理を行います。
+ */
 function HomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -34,7 +38,10 @@ function HomeContent() {
 
   const q = searchParams.get("q") || ""
 
-  // ── ゲーム一覧取得（ログイン不要）──────────────────────────
+  /**
+   * ゲーム一覧の読み込み（パブリックデータ）
+   * Supabase の 'games' テーブルから全データを取得し、投稿者のユーザー名と結合します。
+   */
   const loadGames = async () => {
     // profilesとの結合を試みる（リレーションがあれば取得可能）
     const { data, error } = await supabase
@@ -50,7 +57,7 @@ function HomeContent() {
         return
       }
 
-      // ユーザー情報の取得
+      // ユーザー情報の手動結合マッピング
       const userIds = Array.from(new Set(gamesData.map(g => g.user_id).filter(Boolean)))
       if (userIds.length > 0) {
         const { data: profilesData } = await supabase
@@ -77,12 +84,17 @@ function HomeContent() {
   }
 
   // ── ログイン済みユーザーのデータ取得 ──────────────────────
+  /**
+   * ログインユーザー専用のデータを取得します。
+   * 自分が投稿したゲーム、お気に入り（likes）のID一覧、およびプロフィール情報を取得・生成します。
+   */
   const loadUserData = async () => {
     const { data: authData } = await supabase.auth.getUser()
     const currentUser = authData?.user
     setUser(currentUser)
     if (!currentUser) return
 
+    // 複数のクエリを並列実行して効率化
     const [myGamesRes, favRes, profileRes] = await Promise.all([
       supabase.from("games").select("*").eq("user_id", currentUser.id),
       supabase.from("likes").select("game_id").eq("user_id", currentUser.id),
@@ -97,7 +109,7 @@ function HomeContent() {
       setEditName(profileRes.data.username || "")
       setEditBio(profileRes.data.bio || "")
     } else {
-      // プロフィールがなければ作成
+      // プロフィールが存在しない（初回ログイン時など）場合は自動作成
       await supabase.from("profiles").insert({ id: currentUser.id, username: t("common.unknown_author"), bio: "" })
       const { data: newProfile } = await supabase.from("profiles").select("*").eq("id", currentUser.id).single()
       if (newProfile) {
@@ -158,11 +170,18 @@ function HomeContent() {
     }
   }
 
-  // ── フィルタ＆ソート ───────────────────────────────────────
+  /**
+   * 表示用ゲームリストのフィルタリングとソート（メモ化によるパフォーマンス最適化）
+   * 以下の条件を組み合わせてリアクティブに一覧を生成します：
+   * 1. 検索クエリ (q) によるタイトル・投稿者名の絞り込み
+   * 2. 選択中のタブ (tab) によるお気に入りフィルタ
+   * 3. 選択中のソート順 (sort) による並び替え（人気順・新着順）
+   * 4. スポンサー枠 (is_sponsored) を最上位に固定
+   */
   const filtered = useMemo(() => {
     let list = [...games]
 
-    // 検索フィルタ
+    // 🔹 検索キーワードでフィルタリング
     if (q) {
       list = list.filter(g =>
         g.title.toLowerCase().includes(q.toLowerCase()) ||
@@ -170,21 +189,25 @@ function HomeContent() {
       )
     }
 
+    // 🔹 「お気に入り」タブが選択されている場合のフィルタリング
     if (tab === "favorites") {
       list = list.filter(g => favoriteIds.includes(g.id))
     }
 
+    // 🔹 ソート処理
     if (sort === "likes") {
+      // 人気順（いいね数）
       list.sort((a, b) => (b.likes || 0) - (a.likes || 0))
     } else {
+      // 新着順（作成日時）
       list.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
     }
 
-    // スポンサー枠を最上位に移動
+    // 🔹 スポンサー枠を常に最上位に表示（プロモーション機能）
     list.sort((a, b) => (b.is_sponsored ? 1 : 0) - (a.is_sponsored ? 1 : 0))
 
     return list
-  }, [games, sort, tab, favoriteIds])
+  }, [games, sort, tab, favoriteIds, q, language])
 
   return (
     <>

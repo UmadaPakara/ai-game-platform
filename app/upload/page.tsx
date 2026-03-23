@@ -48,6 +48,12 @@ export default function Upload() {
   }, [])
  
   // 🔹 画像リサイズユーティリティ
+  /**
+   * ユーザーが選択した画像を、サーバー負荷軽減と表示最適化のために 1280x720 (16:9) にリサイズします。
+   * HTML5 Canvas を使用してクライアントサイドで処理を行います。
+   * @param file オリジナルの画像ファイル
+   * @returns リサイズ・圧縮された JPEG ファイル
+   */
   const resizeImage = (file: File): Promise<File> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -62,27 +68,31 @@ export default function Upload() {
           const ctx = canvas.getContext("2d");
           if (!ctx) return;
  
-          // アスペクト比を維持しながらカバー（中央切り抜き）
+          // 🔹 アスペクト比を維持しながらカバー（中央切り抜き）計算
           const imgRatio = img.width / img.height;
           const targetRatio = targetW / targetH;
           let drawW: number, drawH: number, offsetX: number, offsetY: number;
  
           if (imgRatio > targetRatio) {
+            // 元画像の方が横長の場合
             drawH = targetH;
             drawW = targetH * imgRatio;
             offsetX = (targetW - drawW) / 2;
             offsetY = 0;
           } else {
+            // 元画像の方が縦長または同じ場合
             drawW = targetW;
             drawH = targetW / imgRatio;
             offsetX = 0;
             offsetY = (targetH - drawH) / 2;
           }
  
-          ctx.fillStyle = "#FFFFFF"; // 背景を白で埋める
+          // 🔹 Canvasを描画（背景白、高品質な描画）
+          ctx.fillStyle = "#FFFFFF";
           ctx.fillRect(0, 0, targetW, targetH);
           ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
  
+          // 🔹 Blob形式に変換してFileオブジェクトとして返す (JPEG, 品質80%)
           canvas.toBlob((blob) => {
             if (blob) {
               const resizedFile = new File([blob], file.name, { type: "image/jpeg" });

@@ -1,3 +1,8 @@
+/**
+ * サムネイル生成 API
+ * 1. ゲームコードを OpenAI で分析し、画像生成用プロンプト（英語）を作成。
+ * 2. DALL-E 3 を呼び出してゲームのカバーアートを生成。
+ */
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
@@ -8,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "HTML code is required" }, { status: 400 })
     }
 
-    // 1. OpenAIにゲームの内容を分析させ、画像生成用のプロンプトを作成させる
+    // 🔹 1. OpenAI に内容を分析させ、DALL-E 3 用のプロンプトを生成させる
     const promptResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -38,7 +43,7 @@ export async function POST(req: Request) {
 
     const imagePrompt = promptData.choices[0].message.content
 
-    // 2. DALL-E 3 で画像を生成する
+    // 🔹 2. DALL-E 3 で画像を生成
     const imageResponse = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
@@ -58,6 +63,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: imageData }, { status: imageResponse.status })
     }
 
+    // 生成された画像の URL と、OpenAI が調整した最終プロンプトを返す
     return NextResponse.json({
       imageUrl: imageData.data[0].url,
       revisedPrompt: imageData.data[0].revised_prompt

@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GameTube (ゲームチューブ) - AI Game Platform
 
-## Getting Started
+～ AIが創る無限のエンターテインメントを、あなたの手に ～
 
-First, run the development server:
+GameTube は、最新の AI 技術を活用して生成された Web ゲームやデジタルコンテンツを、誰でも簡単に公開、プレイ、そしてシェアできるプラットフォームです。「AI でゲームを創る」という新しい体験を、使いやすく洗練された UI で提供します。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 主要機能
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+-   **AI ゲームプレイ**: ブラウザ上でサクサク動く AI 生成ゲームを即座にプレイ。
+-   **かんたんアップロード**: HTML/JavaScript コードを貼り付けるだけで、あなたのゲームを世界中に公開。
+-   **AI サムネイル生成**: ゲームコードから内容を分析し、DALL-E 3 を使ってハイクオリティなカバーアートを自動生成。
+-   **フォーク（改造）機能**: 他のユーザーが作ったゲームをベースに、新しいアイデアを加えて自分だけの作品へ。
+-   **コミュニティ機能**: 「いいね」や閲覧数による人気ランキング。お気に入り登録でいつでもお気に入りのゲームへアクセス。
+-   **多言語対応**: 日本語と英語の切り替えに対応（i18n）。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 技術スタック
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+モダンな Web 開発技術と AI API を組み合わせたフルスタック構成です。
 
-## Learn More
+-   **フロントエンド**: [Next.js](https://nextjs.org/) (App Router, TypeScript)
+-   **スタイリング**: [Tailwind CSS](https://tailwindcss.com/)
+-   **バックエンド**: [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+-   **データベース / 認証**: [Supabase](https://supabase.com/) (PostgreSQL, Auth, Storage)
+-   **AI インテグレーション**: [OpenAI API](https://openai.com/) (GPT-4o-mini, DALL-E 3)
+-   **アイコン**: [Lucide React](https://lucide.dev/)
 
-To learn more about Next.js, take a look at the following resources:
+## 📂 プロジェクト構成
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+後からのメンテナンス性を考慮し、機能ごとに明確にフォルダを分離しています。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+-   **`app/`**: Next.js App Router によるページと API ルート。
+    -   `api/`: ゲーム生成やサムネイル生成のサーバーレス関数。
+    -   `game/[id]/`: ゲームプレイ画面。iframe サンドボックスによる安全な実行環境。
+    -   `upload/`: 画像リサイズ処理を含む投稿フォーム。
+-   **`components/`**: 再利用可能な UI 部品。
+-   **`lib/`**: Supabase クライアント、多言語化ロジック（i18n）、アフィリエイト連携ユーティリティ。
+-   **`types/`**: TypeScript の共通型定義。
+-   **`public/`**: 静的アセット（画像、アイコン、フォント）。
 
-## Deploy on Vercel
+## 💡 このプロジェクトのポイント (技術的特徴)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1.  **安全なゲーム実行環境**: 投稿された HTML コードは iframe の `sandbox` 属性を使用して実行され、ホスト側のデータへの不正アクセスを防止しています。
+2.  **モバイルファーストのフルスクリーン制御**: iOS Safari 等の Fullscreen API の制限を回避するため、ネイティブ API と CSS 擬似フルスクリーンを自動で切り替える独自ロジックを搭載。
+3.  **クライアントサイドでの画像最適化**: Canvas API を活用し、アップロード前にブラウザ上で画像をリサイズ・圧縮。サーバー負荷の軽減と高速なアップロードを実現。
+4.  **AI プロンプト・エンジニアリング**: ゲームのコードを AI が読み解き、視覚的に魅力的な画像を生成するための最適なプロンプトを自動構築するパイプラインを構築。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+このプロジェクトは、AI 時代の新しいクリエイティブプラットフォームの雛形として、拡張性と可読性を重視して設計されています。

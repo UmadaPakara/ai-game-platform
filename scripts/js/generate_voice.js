@@ -2,9 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
+/**
+ * VOICEVOX API を使用して、テキストから音声を生成するスクリプトです。
+ * ずんだもんのボイスを使用して、ゲームプラットフォーム紹介用の音声を一括生成します。
+ */
+
 const SPEAKER_ID = 3; // ずんだもん（あまあま）
-const BASE_URL = 'http://localhost:50021';
-const OUTPUT_DIR = path.join(__dirname, 'public', 'audio');
+const BASE_URL = 'http://localhost:50021'; // VOICEVOX エンジンのデフォルトURL
+// 出力先: プロジェクトルートの public/audio フォルダ
+const OUTPUT_DIR = path.join(__dirname, '..', '..', 'public', 'audio');
 
 const lines = [
     { name: 'gt1.wav', text: 'やっほー！ずんだもんなのだ！今日はこのエーアイ・ゲームプラットフォームで遊んでみるのだ！' },
@@ -19,6 +25,9 @@ const lines = [
     { name: 'sec4.wav', text: 'ランキングの頂点を目指して、キミも天才クリエイターになるのだ！' }
 ];
 
+/**
+ * VOICEVOX エンジンに対して POST リクエストを送信する補助関数
+ */
 async function postRequest(urlPath, body = null) {
     return new Promise((resolve, reject) => {
         const options = {
@@ -42,22 +51,26 @@ async function postRequest(urlPath, body = null) {
     });
 }
 
+/**
+ * テキストから音声を生成し、保存するメイン処理
+ */
 async function generateAudio(text, filename) {
     console.log(`Generating: ${filename} for "${text}"`);
     
-    // 1. Audio Query
+    // 1. Audio Query: 音声合成用のパラメータ（クエリ）を生成
     const queryPath = `/audio_query?text=${encodeURIComponent(text)}&speaker=${SPEAKER_ID}`;
     const queryBuffer = await postRequest(queryPath);
     const queryData = JSON.parse(queryBuffer.toString());
 
-    // 1.5. Adjust speed
+    // 1.5. パラメータの調整（話速を1.5倍にする）
     queryData.speedScale = 1.5;
     const modifiedQuery = JSON.stringify(queryData);
 
-    // 2. Synthesis
+    // 2. Synthesis: クエリを元に実際の音声波形（WAV）を生成
     const synthPath = `/synthesis?speaker=${SPEAKER_ID}`;
     const audioData = await postRequest(synthPath, Buffer.from(modifiedQuery));
 
+    // ファイル書き出し
     fs.writeFileSync(path.join(OUTPUT_DIR, filename), audioData);
     console.log(`Saved: ${filename}`);
 }
